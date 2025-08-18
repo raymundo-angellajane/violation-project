@@ -61,6 +61,7 @@ class ViolationController extends Controller
                          ->with('success', 'Violation updated successfully.');
     }
 
+    
     public function destroy(Violation $violation)
     {
         $violation->delete();

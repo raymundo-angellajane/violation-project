@@ -8,3 +8,5 @@ Route::get('/', function () {
 });
 
 Route::resource('violations', ViolationController::class);
+
+Route::get('/violations/export-pdf', [ViolationController::class, 'exportPdf'])->name('violations.exportPdf');
