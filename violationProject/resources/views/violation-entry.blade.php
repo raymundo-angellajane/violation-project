@@ -66,48 +66,47 @@
     </div>
 
     <!-- Table -->
-    <div class="rounded-2xl bg-white shadow overflow-hidden">
+    <div class="rounded-2xl bg-white shadow overflow-hidden border border-neutral-200">
       <!-- Header -->
-      <div class="bg-brand-700 text-white">
+      <div class="bg-brand-700 text-white border-b border-neutral-200">
         <!-- 10 columns: Student No, Name, Course, Year, Type, Details, Date, Penalty, Actions, Status -->
-        <div class="grid grid-cols-10 gap-4 px-6 py-3 text-sm font-semibold">
-          <div>Student No.</div>
-          <div>Name</div>
-          <div>Course</div>
-          <div>Year</div>
-          <div>Type</div>
-          <div>Details</div>
-          <div>Date</div>
-          <div>Penalty</div>
-          <div>Actions</div>
-          <div>Status</div>
+        <div class="grid grid-cols-10 divide-x divide-neutral-300/30 px-6 py-3 text-sm font-semibold">
+          <div class="text-center">Student No.</div>
+          <div class="text-center">Name</div>
+          <div class="text-center">Course</div>
+          <div class="text-center">Year</div>
+          <div class="text-center">Type</div>
+          <div class="text-center">Details</div>
+          <div class="text-center">Date</div>
+          <div class="text-center">Penalty</div>
+          <div class="text-center">Actions</div>
+          <div class="text-center">Status</div>
         </div>
       </div>
 
       <!-- Body -->
-      <div id="tableBody" class="divide-y divide-neutral-100">
+      <div id="tableBody" class="divide-y divide-neutral-200">
         @forelse($violations as $row)
-          <div class="grid grid-cols-10 gap-4 px-6 py-3 hover:bg-neutral-50 transition violation-row text-sm">
-            <div class="font-medium student-no">{{ $row->student_no }}</div>
-            <div class="truncate" title="{{ $row->name }}">{{ $row->name }}</div>
-            <div class="truncate" title="{{ $row->course }}">{{ $row->course }}</div>
-            <div>{{ $row->year_level }}</div>
-            <div class="truncate" title="{{ $row->type }}">{{ $row->type }}</div>
-            <div class="truncate" title="{{ $row->details }}">{{ $row->details }}</div>
-            <div>{{ \Carbon\Carbon::parse($row->date)->format('M d, Y') }}</div>
-            <div class="truncate" title="{{ $row->penalty }}">{{ $row->penalty }}</div>
+          <div class="grid grid-cols-10 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 transition violation-row text-sm">
+            <div class="font-medium text-center student-no">{{ $row->student_no }}</div>
+            <div class="truncate text-center" title="{{ $row->name }}">{{ $row->name }}</div>
+            <div class="truncate text-center" title="{{ $row->course }}">{{ $row->course }}</div>
+            <div class="text-center">{{ $row->year_level }}</div>
+            <div class="truncate text-center" title="{{ $row->type }}">{{ $row->type }}</div>
+            <div class="truncate text-center" title="{{ $row->details }}">{{ $row->details }}</div>
+            <div class="text-center">{{ \Carbon\Carbon::parse($row->date)->format('M d, Y') }}</div>
+            <div class="truncate text-center" title="{{ $row->penalty }}">{{ $row->penalty }}</div>
 
-            <!-- Actions (icons only) -->
-            <div class="flex items-center gap-3">
+            <!-- Actions -->
+            <div class="flex items-center justify-center gap-3">
               <!-- Edit -->
               <a href="{{ route('violations.edit', $row->id) }}"
-                 class="text-blue-600 hover:text-blue-800 transition" title="Edit">
+                class="text-blue-600 hover:text-blue-800 transition" title="Edit">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round"
                         d="M16.862 3.487a2.25 2.25 0 013.182 3.182L7.125 19.587l-4.182.637.637-4.182L16.862 3.487z"/>
                 </svg>
-                <span class="sr-only">Edit</span>
               </a>
 
               <!-- Delete -->
@@ -115,22 +114,22 @@
                     onsubmit="return confirm('Delete this record?')" class="inline">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="text-red-600 hover:text-red-800 transition" title="Delete" aria-label="Delete">
+                <button type="submit" class="text-red-600 hover:text-red-800 transition" title="Delete">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                       viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <!-- trash icon -->
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0V5a2 2 0 012-2h2a2 2 0 012 2v2"/>
+                      viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" 
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0V5a2 2 0 012-2h2a2 2 0 012 2v2"/>
                   </svg>
                 </button>
               </form>
             </div>
 
             <!-- Status -->
-            <div>
+            <div class="text-center">
               <span class="px-2.5 py-1 rounded-full text-xs font-semibold
                 {{ strtolower($row->status) == 'pending'
-                   ? 'bg-amber-100 text-amber-800'
-                   : 'bg-emerald-100 text-emerald-800' }}">
+                  ? 'bg-amber-100 text-amber-800'
+                  : 'bg-emerald-100 text-emerald-800' }}">
                 {{ $row->status }}
               </span>
             </div>
@@ -140,7 +139,6 @@
         @endforelse
       </div>
     </div>
-  </div>
 
   <!-- Search script -->
   <script>
