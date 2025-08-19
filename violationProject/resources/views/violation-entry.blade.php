@@ -69,7 +69,6 @@
     <div class="rounded-2xl bg-white shadow overflow-hidden border border-neutral-200">
       <!-- Header -->
       <div class="bg-brand-700 text-white border-b border-neutral-200">
-        <!-- 10 columns: Student No, Name, Course, Year, Type, Details, Date, Penalty, Actions, Status -->
         <div class="grid grid-cols-10 divide-x divide-neutral-300/30 px-6 py-3 text-sm font-semibold">
           <div class="text-center">Student No.</div>
           <div class="text-center">Name</div>
