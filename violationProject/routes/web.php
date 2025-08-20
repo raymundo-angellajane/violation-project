@@ -12,3 +12,4 @@ Route::resource('violations', ViolationController::class)->except(['show']);
 
 Route::get('/violations/export-pdf', [ViolationController::class, 'exportPdf'])
     ->name('violations.exportPdf');
+

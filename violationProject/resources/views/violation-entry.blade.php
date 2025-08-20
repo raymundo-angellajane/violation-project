@@ -96,7 +96,7 @@
       <div class="min-w-[1200px]">
         <!-- Header -->
         <div class="bg-brand-700 text-white border-b border-neutral-200">
-          <div class="grid grid-cols-10 divide-x divide-neutral-300/30 px-6 py-3 text-sm font-semibold">
+          <div class="grid grid-cols-11 divide-x divide-neutral-300/30 px-6 py-3 text-sm font-semibold">
             <div class="text-center">Student No.</div>
             <div class="text-center">Name</div>
             <div class="text-center">Course</div>
@@ -105,6 +105,7 @@
             <div class="text-center">Details</div>
             <div class="text-center">Date</div>
             <div class="text-center">Penalty</div>
+            <div class="text-center">Appeal</div>
             <div class="text-center">Status</div>
             <div class="text-center">Actions</div>
           </div>
@@ -113,7 +114,7 @@
         <!-- Body -->
         <div id="tableBody" class="divide-y divide-neutral-200">
           @forelse($violations as $row)
-            <div class="violation-row grid grid-cols-10 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 transition text-sm items-center">
+            <div class="violation-row grid grid-cols-11 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 transition text-sm items-center">
               <div class="font-medium text-center student-no" title="{{ $row->student_no }}">{{ $row->student_no }}</div>
               <div class="truncate text-center" title="{{ $row->name }}">{{ $row->name }}</div>
               <div class="truncate text-center" title="{{ $row->course }}">{{ $row->course }}</div>
@@ -123,12 +124,14 @@
               <div class="text-center">{{ \Carbon\Carbon::parse($row->date)->format('M d, Y') }}</div>
               <div class="truncate text-center" title="{{ $row->penalty }}">{{ $row->penalty }}</div>
 
+              <div class="truncate text-center" title="{{ $row->appeal ?? 'N/A' }}">
+                {{ $row->appeal ?? 'N/A' }}
+              </div>
+
               <!-- Status -->
               <div class="text-center">
                 <span class="px-2.5 py-1 rounded-full text-xs font-semibold
                   {{ strtolower($row->status) == 'pending' ? 'bg-amber-100 text-amber-800' : '' }}
-                  {{ strtolower($row->status) == 'approved' ? 'bg-emerald-100 text-emerald-800' : '' }}
-                  {{ strtolower($row->status) == 'declined' ? 'bg-red-100 text-red-800' : '' }}
                   {{ strtolower($row->status) == 'disclosed' ? 'bg-blue-100 text-blue-800' : '' }} "
                   title="{{ ucfirst($row->status) }}">
                   {{ $row->status }}
