@@ -65,8 +65,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 15l4 4 4-4m0-6l-4-4-4 4"/>
               </svg> Newest
             </button>
-            <button data-value="type-asc" class="w-full text-left px-4 py-2 hover:bg-neutral-100 flex items-center gap-2">Name: A→Z</button>
-            <button data-value="type-desc" class="w-full text-left px-4 py-2 hover:bg-neutral-100 flex items-center gap-2">Name: Z→A</button>
+            <button data-value="type-asc" class="w-full text-left px-4 py-2 hover:bg-neutral-100 flex items-center gap-2">Name: Z→A</button>
+            <button data-value="type-desc" class="w-full text-left px-4 py-2 hover:bg-neutral-100 flex items-center gap-2">Name: A→Z</button>
           </div>
         </div>
       </div>
