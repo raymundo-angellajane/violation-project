@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Violation;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ViolationController extends Controller
 {
@@ -67,5 +68,12 @@ class ViolationController extends Controller
         $violation->delete();
         return redirect()->route('violations.index')
                          ->with('success', 'Violation deleted successfully.');
+    }
+
+    public function exportPdf()
+    {
+        $violations = Violation::all(); // fetch from DB
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('violations.pdf', compact('violations'));
+        return $pdf->download('violations_report.pdf');
     }
 }

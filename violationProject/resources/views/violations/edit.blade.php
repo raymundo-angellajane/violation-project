@@ -79,7 +79,7 @@
           <label class="block text-sm font-semibold mb-1">Status</label>
           <select name="status" class="w-full border rounded-xl px-3 py-2">
             <option value="Pending" {{ old('status', $violation->status) == 'Pending' ? 'selected' : '' }}>Pending</option>
-            <option value="Settled" {{ old('status', $violation->status) == 'Settled' ? 'selected' : '' }}>Settled</option>
+            <option value="Disclosed" {{ old('status', $violation->status) == 'Disclosed' ? 'selected' : '' }}>Disclosed</option>
           </select>
           @error('status') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>

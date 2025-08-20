@@ -88,7 +88,7 @@
           <select name="status" 
                   class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]">
             <option value="Pending" {{ old('status')=='Pending' ? 'selected' : '' }}>Pending</option>
-            <option value="Settled" {{ old('status')=='Settled' ? 'selected' : '' }}>Approved</option>
+            <option value="Disclosed" {{ old('status')=='Disclosed' ? 'selected' : '' }}>Disclosed</option>
           </select>
           @error('status') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
