@@ -7,6 +7,8 @@
 
   {{-- Tailwind CSS --}}
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -32,12 +34,24 @@
     <!-- Title -->
     <h1 class="text-3xl font-bold tracking-tight mb-6">My Violations</h1>
 
+    <!-- Student Info -->
+    <div class="bg-white shadow rounded-xl p-4 mb-6 flex items-center gap-4 border border-neutral-200">
+      <div class="w-12 h-12 rounded-full bg-brand-700 text-white flex items-center justify-center font-bold">
+        ST
+      </div>
+      <div>
+        <p class="text-sm text-neutral-500">Student No.</p>
+        <p class="text-lg font-semibold">ST-001-TG 0</p>
+      </div>
+    </div>
+
     <!-- Table -->
     <div class="overflow-x-auto rounded-2xl bg-white shadow border border-neutral-200">
       <div class="min-w-[950px]">
         <!-- Header -->
         <div class="bg-brand-700 text-white border-b border-neutral-200">
-          <div class="grid grid-cols-8 divide-x divide-neutral-300/30 px-6 py-3 text-sm font-semibold">
+          <div class="grid grid-cols-9 divide-x divide-neutral-300/30 px-6 py-3 text-sm font-semibold">
+            <div class="text-center">Violation ID</div>
             <div class="text-center">Type</div>
             <div class="text-center">Details</div>
             <div class="text-center">Date</div>
@@ -52,13 +66,29 @@
         <!-- Body -->
         <div id="tableBody" class="divide-y divide-neutral-200">
           @forelse($violations as $row)
-            <div class="grid grid-cols-8 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 transition text-sm items-center">
-              <div class="truncate text-center">{{ $row->type }}</div>
-              <div class="truncate text-center">{{ $row->details }}</div>
+            <div class="grid grid-cols-9 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 odd:bg-neutral-50/40 transition text-sm items-center">
+              <div class="text-center font-semibold">{{ $row->formatted_id }}</div>
+              <div class="text-center">{{ $row->type }}</div>
+              <div class="text-center">{{ $row->details }}</div>
               <div class="text-center">{{ \Carbon\Carbon::parse($row->date)->format('M d, Y') }}</div>
-              <div class="truncate text-center">{{ $row->penalty }}</div>
-              <div class="truncate text-center">{{ $row->appeal ?? 'N/A' }}</div>
+              <div class="text-center">{{ $row->penalty }}</div>
 
+              <!-- Appeal Column -->
+              <div class="text-center">
+                @if(!$row->appeal)
+                  <button type="button" onclick="openAppealModal('{{ $row->id }}')"
+                    class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                    Add Appeal
+                  </button>
+                @else
+                  <button type="button" onclick="openAppealViewModal('{{ $row->id }}')"
+                    class="text-green-600 hover:text-green-800 font-medium text-sm">
+                    View Appeal
+                  </button>
+                @endif
+              </div>
+
+              <!-- Status -->
               <div class="text-center">
                 <span class="px-2.5 py-1 rounded-full text-xs font-semibold
                   {{ $row->status === 'pending' ? 'bg-amber-100 text-amber-800' : '' }}
@@ -68,23 +98,25 @@
                 </span>
               </div>
 
+              <!-- Reviewed By -->
               <div class="text-center">
                 {{ $row->reviewed_by ?? 'Not Reviewed' }}
               </div>
 
+              <!-- Action (Eye only) -->
               <div class="text-center">
-                @if(!$row->appeal)
-                  <button type="button" onclick="openAppealModal('{{ $row->id }}')"
-                    class="text-blue-600 hover:text-blue-800 font-medium text-sm">
-                    Add Appeal
-                  </button>
-                @else
-                  <span class="text-neutral-500 text-xs">Submitted</span>
-                @endif
+                <button type="button" onclick="openDetailsModal('{{ $row->id }}')"
+                  class="p-1 rounded hover:bg-neutral-100" title="View Details">
+                  <i data-lucide="eye" class="w-5 h-5"></i>
+                </button>
               </div>
             </div>
           @empty
-            <div class="px-6 py-10 text-center text-neutral-500">No violations found</div>
+            <div class="px-6 py-12 text-center text-neutral-500">
+              <i data-lucide="check-circle" class="mx-auto w-12 h-12 mb-3 text-neutral-400"></i>
+              <p class="font-medium">No violations found</p>
+              <p class="text-sm">You are all clear 🎉</p>
+            </div>
           @endforelse
         </div>
       </div>
@@ -111,6 +143,34 @@
     </div>
   </div>
 
+  <!-- View Appeal Modal -->
+  <div id="appealViewModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-lg p-6">
+      <h2 class="text-xl font-bold mb-4">Appeal Submitted</h2>
+      <div id="appealViewContent" class="text-sm text-neutral-700 whitespace-pre-line"></div>
+      <div class="mt-6 flex justify-end">
+        <button type="button" onclick="closeAppealViewModal()" 
+          class="px-4 py-2 rounded-lg bg-neutral-200 hover:bg-neutral-300">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Modal -->
+  <div id="detailsModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-lg p-6">
+      <h2 class="text-xl font-bold mb-4">Violation Details</h2>
+      <div id="detailsContent" class="space-y-3 text-sm text-neutral-700">
+        <!-- Populated dynamically -->
+      </div>
+      <div class="mt-6 flex justify-end">
+        <button type="button" onclick="closeDetailsModal()" 
+          class="px-4 py-2 rounded-lg bg-neutral-200 hover:bg-neutral-300">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     function openAppealModal(id) {
       document.getElementById('appealViolationId').value = id;
@@ -118,6 +178,39 @@
     }
     function closeAppealModal() {
       document.getElementById('appealModal').classList.add('hidden');
+    }
+
+    function openAppealViewModal(id) {
+      const violations = @json($violations);
+      let v = violations.find(item => item.id == id);
+      if (!v) return;
+      document.getElementById('appealViewContent').textContent = v.appeal;
+      document.getElementById('appealViewModal').classList.remove('hidden');
+    }
+    function closeAppealViewModal() {
+      document.getElementById('appealViewModal').classList.add('hidden');
+    }
+
+    function openDetailsModal(id) {
+      const violations = @json($violations);
+      let v = violations.find(item => item.id == id);
+      if (!v) return;
+
+      document.getElementById('detailsContent').innerHTML = `
+        <div><p class="text-xs text-neutral-500">Violation ID</p><p class="font-semibold">V-${new Date().getFullYear()}-${String(v.id).padStart(4, '0')}</p></div>
+        <div><p class="text-xs text-neutral-500">Type</p><p>${v.type}</p></div>
+        <div><p class="text-xs text-neutral-500">Details</p><p>${v.details}</p></div>
+        <div><p class="text-xs text-neutral-500">Date</p><p>${new Date(v.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p></div>
+        <div><p class="text-xs text-neutral-500">Penalty</p><p>${v.penalty}</p></div>
+        <div><p class="text-xs text-neutral-500">Appeal</p><p>${v.appeal ?? 'N/A'}</p></div>
+        <div><p class="text-xs text-neutral-500">Status</p><p>${v.status}</p></div>
+        <div><p class="text-xs text-neutral-500">Reviewed By</p><p>${v.reviewed_by ?? 'Not Reviewed'}</p></div>
+      `;
+
+      document.getElementById('detailsModal').classList.remove('hidden');
+    }
+    function closeDetailsModal() {
+      document.getElementById('detailsModal').classList.add('hidden');
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -128,6 +221,7 @@
           setTimeout(() => msg.remove(), 700);
         }, 3000);
       }
+      lucide.createIcons();
     });
   </script>
 </body>

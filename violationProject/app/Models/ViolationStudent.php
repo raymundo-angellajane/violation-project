@@ -24,4 +24,9 @@ class ViolationStudent extends Model
     {
         return $this->belongsTo(Student::class);
     }
+
+    public function getFormattedIdAttribute()
+    {
+        return 'V-' . now()->year . '-' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
+    }
 }
