@@ -24,6 +24,12 @@
 <body class="bg-neutral-50 text-neutral-800 antialiased">
   <div class="max-w-[1400px] mx-auto px-6 py-10">
 
+    @if(session('success'))
+      <div id="successMessage" class="mb-4 rounded-lg bg-green-100 border border-green-300 text-green-800 px-4 py-3">
+        {{ session('success') }}
+      </div>
+    @endif
+
     <!-- Title -->
     <h1 class="text-3xl font-bold tracking-tight mb-4">Violation Entry</h1>
 
@@ -186,7 +192,7 @@
 
   <!-- Search + Sort Script -->
   <script>
-    const searchInput = document.getElementById('searchInput');
+    const searchInput = document.getElementById('searchInput');   // One search bar (Student No. + Name)
     const sortSelect = { value: '' };
     const tableBody = document.getElementById('tableBody');
 
@@ -216,10 +222,11 @@
       const term = searchInput.value.toLowerCase();
       const rows = Array.from(tableBody.querySelectorAll('.violation-row'));
 
-      // Filter
+      // Filter (check both Student No. and Name)
       rows.forEach(row => {
         const studentNo = row.querySelector('.student-no').textContent.toLowerCase();
         const name = row.querySelector('div:nth-child(2)').textContent.toLowerCase();
+
         row.style.display = (studentNo.includes(term) || name.includes(term)) ? '' : 'none';
       });
 
@@ -248,6 +255,7 @@
 
     searchInput.addEventListener('input', filterAndSort);
   </script>
+
 
   <!-- Details Modal -->
   <div id="detailsModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -283,6 +291,18 @@
     function closeDetailsModal() {
       document.getElementById('detailsModal').classList.add('hidden');
     }
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const msg = document.getElementById("successMessage");
+      if (msg) {
+        setTimeout(() => {
+          msg.classList.add("opacity-0", "transition", "duration-700");
+          setTimeout(() => msg.remove(), 700);
+        }, 3000); // hide after 3 seconds
+      }
+    });
   </script>
 
 </body>
