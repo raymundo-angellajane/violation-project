@@ -7,7 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class ViolationStudent extends Model
 {
-    protected $fillable = ['student_id', 'date', 'status', 'details'];
+    use HasFactory;
+
+    protected $fillable = [
+        'student_id',
+        'type',
+        'details',
+        'date',
+        'penalty',
+        'appeal',
+        'status',
+        'reviewed_by',
+    ];
 
     public function student()
     {

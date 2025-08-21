@@ -76,7 +76,7 @@
                 @if(!$row->appeal)
                   <button type="button" onclick="openAppealModal('{{ $row->id }}')"
                     class="text-blue-600 hover:text-blue-800 font-medium text-sm">
-                    Submit Appeal
+                    Add Appeal
                   </button>
                 @else
                   <span class="text-neutral-500 text-xs">Submitted</span>
