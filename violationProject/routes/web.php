@@ -22,4 +22,3 @@ Route::get('/appeals/create/{violation}', [AppealController::class, 'create'])->
 Route::post('/appeals/store', [AppealController::class, 'store'])->name('appeals.store');
 
 Route::get('/student/violations', [StudentViolationController::class, 'index'])->name('student.violations');
-
