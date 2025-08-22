@@ -8,17 +8,17 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ViolationController extends Controller
 {
-    //public function index()
-    //{
-    //    $violations = Violation::latest()->get();
-    //    return view('violation-entry', compact('violations'));
-    //}
+    public function index()
+    {
+        $violations = Violation::latest()->get();
+        return view('violation-entry', compact('violations'));
+    }
 
     public function show($id)
-{
-    $violations = Violation::findOrFail($id);
-    return view('violations.index', compact('violation'));
-}
+    {
+        $violation = Violation::findOrFail($id);
+        return view('violations.index', compact('violation'));
+    }
 
 
     public function create()
