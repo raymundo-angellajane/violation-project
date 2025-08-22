@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::create('students', function (Blueprint $table) {
-            $table->id();
+            $table->id('student_id');
             $table->string('student_no')->unique();
             $table->string('name');
             $table->string('course');

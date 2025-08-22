@@ -5,7 +5,7 @@
   <h2 class="text-xl font-bold mb-4">Submit Appeal</h2>
   <form action="{{ route('appeals.store') }}" method="POST">
     @csrf
-    <input type="hidden" name="violation_id" value="{{ $violation->id }}">
+    <input type="hidden" name="violation_id" value="{{ $violations->id }}">
 
     <label class="block mb-2 font-semibold">Violation:</label>
     <p class="mb-4">{{ $violation->type }} - {{ $violation->details }}</p>
