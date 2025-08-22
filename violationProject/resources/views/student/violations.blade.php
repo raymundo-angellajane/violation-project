@@ -41,7 +41,7 @@
       </div>
       <div>
         <p class="text-sm text-neutral-500">Student No.</p>
-        <p class="text-lg font-semibold">ST-001-TG 0</p>
+        <p class="text-lg font-semibold">2025-00001-TG-0</p>
       </div>
     </div>
 

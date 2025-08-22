@@ -7,13 +7,19 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::create('students', function (Blueprint $table) {
-            $table->id('student_id');
-            $table->string('student_no')->unique();
-            $table->string('name');
-            $table->string('course');
-            $table->string('year_level');
+            $table->bigIncrements('student_no'); // Primary key (internal use)
+            $table->string('student_id', 50)->unique(); // Public-facing ID (e.g. "2023-0001")
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->unsignedBigInteger('course_id');
+            $table->string('year_level', 20);
+            $table->string('email')->unique();
+            $table->string('contact_no', 20);
             $table->timestamps();
+
+            $table->foreign('course_id')->references('course_id')->on('courses')->onDelete('cascade');
         });
+
     }
 
     public function down(): void {
