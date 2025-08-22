@@ -172,6 +172,8 @@
   </div>
 
   <script>
+    const violations = @json($violations);
+
     function openAppealModal(id) {
       document.getElementById('appealViolationId').value = id;
       document.getElementById('appealModal').classList.remove('hidden');
@@ -179,9 +181,9 @@
     function closeAppealModal() {
       document.getElementById('appealModal').classList.add('hidden');
     }
-
+    
     function openAppealViewModal(id) {
-      const violations = @json($violations);
+      
       let v = violations.find(item => item.id == id);
       if (!v) return;
       document.getElementById('appealViewContent').textContent = v.appeal;
@@ -192,7 +194,7 @@
     }
 
     function openDetailsModal(id) {
-      const violations = @json($violations);
+      
       let v = violations.find(item => item.id == id);
       if (!v) return;
 
