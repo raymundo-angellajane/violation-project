@@ -26,3 +26,5 @@ return new class extends Migration {
         Schema::dropIfExists('violation_students');
     }
 };
+
+//for sample testing lang to dedmahin mo muna
