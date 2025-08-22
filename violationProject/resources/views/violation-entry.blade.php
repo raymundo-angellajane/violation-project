@@ -119,9 +119,25 @@
                 </span>
               </div>
               <div class="flex items-center justify-center gap-3">
-                <button onclick="openDetailsModal(@json($row))" class="text-green-600 hover:text-green-800" title="View Details">
+                <!-- FIXED BUTTON -->
+                <button 
+                  onclick="openDetailsModal({
+                    student_no: '{{ $row->student_no }}',
+                    name: '{{ $row->name }}',
+                    course: '{{ $row->course }}',
+                    year_level: '{{ $row->year_level }}',
+                    type: '{{ $row->type }}',
+                    details: '{{ $row->details }}',
+                    date: '{{ \Carbon\Carbon::parse($row->date)->format('M d, Y') }}',
+                    penalty: '{{ $row->penalty }}',
+                    appeal: '{{ $row->appeal ?? 'N/A' }}',
+                    status: '{{ $row->status }}'
+                  })"
+                  class="text-green-600 hover:text-green-800" 
+                  title="View Details">
                   <i data-lucide="eye" class="w-5 h-5"></i>
                 </button>
+
                 <a href="{{ route('violations.edit', $row->id) }}" class="text-blue-600 hover:text-blue-800" title="Edit">
                   <i data-lucide="pencil" class="w-5 h-5"></i>
                 </a>
@@ -223,7 +239,7 @@
         <p><strong>Date:</strong> ${v.date}</p>
         <p><strong>Penalty:</strong> ${v.penalty}</p>
         <p><strong>Status:</strong> ${v.status}</p>
-        <p><strong>Appeal:</strong> ${v.appeal ?? 'N/A'}</p>
+        <p><strong>Appeal:</strong> ${v.appeal}</p>
       `;
       document.getElementById('detailsModal').classList.remove('hidden');
     }
