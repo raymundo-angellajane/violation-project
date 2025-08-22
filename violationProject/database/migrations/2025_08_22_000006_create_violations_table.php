@@ -7,20 +7,26 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::create('violations', function (Blueprint $table) {
-            $table->string('violation_id', 50)->primary(); // Or use bigIncrements if preferred
-            $table->unsignedBigInteger('student_no'); // Foreign key to students
+            $table->string('violation_id', 50)->primary();
+            $table->unsignedBigInteger('student_no');
             $table->string('details', 255);
             $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
             $table->string('penalty', 100)->nullable();
             $table->enum('type', ['Minor', 'Major']);
             $table->date('violation_date');
-            $table->timestamps();
             $table->string('reviewed_by', 50)->nullable();
+            $table->timestamps();
 
-            $table->foreign('student_no')->references('student_no')->on('students')->onDelete('cascade');
-            $table->foreign('reviewed_by')->references('reviewer_id')->on('reviewers')->onDelete('set null');
+            $table->foreign('student_no')
+                  ->references('student_no')
+                  ->on('students')
+                  ->onDelete('cascade');
+
+            $table->foreign('reviewed_by')
+                  ->references('reviewer_id')
+                  ->on('reviewers')
+                  ->onDelete('set null');
         });
-
     }
 
     public function down(): void {

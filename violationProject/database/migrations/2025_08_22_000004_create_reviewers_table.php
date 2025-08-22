@@ -11,7 +11,10 @@ return new class extends Migration {
             $table->string('faculty_id', 50);
             $table->timestamps();
 
-            $table->foreign('faculty_id')->references('faculty_id')->on('faculties')->onDelete('cascade');
+            $table->foreign('faculty_id')
+                  ->references('faculty_id')
+                  ->on('faculties')
+                  ->onDelete('cascade');
         });
     }
 
