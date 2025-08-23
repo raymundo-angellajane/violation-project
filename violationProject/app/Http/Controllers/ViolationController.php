@@ -29,14 +29,15 @@ class ViolationController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'student_no' => 'required',
-            'name'       => 'required',
-            'course'     => 'required',
-            'year_level' => 'required',
-            'type'       => 'required',
-            'date'       => 'required|date',
-            'penalty'    => 'required',
-            'status'     => 'required'
+            'student_no'  => 'required',
+            'first_name'  => 'required',
+            'last_name'   => 'required',
+            'course_id'   => 'required',
+            'year_level'  => 'required',
+            'type'        => 'required',
+            'violation_date' => 'required|date',
+            'penalty'     => 'required',
+            'status'      => 'required'
         ]);
 
         Violation::create($request->all());
@@ -53,14 +54,15 @@ class ViolationController extends Controller
     public function update(Request $request, Violation $violation)
     {
         $request->validate([
-            'student_no' => 'required',
-            'name'       => 'required',
-            'course'     => 'required',
-            'year_level' => 'required',
-            'type'       => 'required',
-            'date'       => 'required|date',
-            'penalty'    => 'required',
-            'status'     => 'required'
+            'student_no'  => 'required',
+            'first_name'  => 'required',
+            'last_name'   => 'required',
+            'course_id'   => 'required',
+            'year_level'  => 'required',
+            'type'        => 'required',
+            'violation_date' => 'required|date',
+            'penalty'     => 'required',
+            'status'      => 'required'
         ]);
 
         $violation->update($request->all());

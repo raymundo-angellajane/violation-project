@@ -9,20 +9,23 @@ class Violation extends Model
 {
     use HasFactory;
 
-    protected $table = 'violations';
     protected $primaryKey = 'violation_id';
-    public $incrementing = false;
+    protected $table = 'violations';
     protected $keyType = 'string';
+    public $incrementing = false;
 
     protected $fillable = [
         'violation_id',
         'student_no',
-        'details',
-        'status',
-        'penalty',
+        'first_name',
+        'last_name',
+        'course_id',
+        'year_level',
         'type',
         'violation_date',
-        'reviewed_by',
+        'penalty',
+        'status',
+        'reviewed_by'
     ];
 
     // Relationships
@@ -33,7 +36,7 @@ class Violation extends Model
 
     public function reviewer()
     {
-        return $this->belongsTo(Reviewer::class, 'reviewed_by', 'reviewer_id');
+        return $this->belongsTo(User::class, 'reviewed_by', 'id');
     }
 
     public function studentAppeals()

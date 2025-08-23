@@ -84,16 +84,17 @@
         <div class="bg-brand-700 text-white border-b border-neutral-200">
           <div class="grid grid-cols-11 divide-x divide-neutral-300/30 px-6 py-3 text-sm font-semibold">
             <div class="text-center">Student No.</div>
-            <div class="text-center">Name</div>
+            <div class="text-center">First Name</div>
+            <div class="text-center">Last Name</div>
             <div class="text-center">Course</div>
-            <div class="text-center">Year</div>
+            <div class="text-center">Year Level</div>
             <div class="text-center">Type</div>
             <div class="text-center">Details</div>
             <div class="text-center">Date</div>
             <div class="text-center">Penalty</div>
             <div class="text-center">Appeal</div>
             <div class="text-center">Status</div>
-            <div class="text-center">Actions</div>
+            <div class="text-center">Actions</div>  
           </div>
         </div>
 
@@ -102,12 +103,13 @@
           @forelse($violations as $row)
             <div class="violation-row grid grid-cols-11 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 odd:bg-neutral-50/40 transition text-sm items-center">
               <div class="font-medium text-center student-no">{{ $row->student_no }}</div>
-              <div class="text-center">{{ $row->name }}</div>
-              <div class="text-center">{{ $row->course }}</div>
+              <div class="text-center">{{ $row->first_name }}</div>
+              <div class="text-center">{{ $row->last_name }}</div>
+              <div class="text-center">{{ $row->course_id }}</div>
               <div class="text-center">{{ $row->year_level }}</div>
               <div class="text-center">{{ $row->type }}</div>
-              <div class="text-center">{{ $row->details }}</div>
-              <div class="text-center">{{ \Carbon\Carbon::parse($row->date)->format('M d, Y') }}</div>
+              <div class="text-center">{{ $row->details ?? 'N/A'}}</div>
+              <div class="text-center">{{ \Carbon\Carbon::parse($row->violation_date)->format('M d, Y') }}</div>
               <div class="text-center">{{ $row->penalty }}</div>
               <div class="text-center">{{ $row->appeal ?? 'N/A' }}</div>
               <div class="text-center">
@@ -123,25 +125,25 @@
                 <button 
                   onclick="openDetailsModal({
                     student_no: '{{ $row->student_no }}',
-                    name: '{{ $row->name }}',
-                    course: '{{ $row->course }}',
+                    name: '{{ $row->first_name }} {{ $row->last_name }}',
+                    course: '{{ $row->course_id }}',
                     year_level: '{{ $row->year_level }}',
                     type: '{{ $row->type }}',
-                    details: '{{ $row->details }}',
-                    date: '{{ \Carbon\Carbon::parse($row->date)->format('M d, Y') }}',
+                    details: '{{ $row->details ?? 'N/A' }}',
+                    date: '{{ \Carbon\Carbon::parse($row->violation_date)->format('M d, Y') }}',
                     penalty: '{{ $row->penalty }}',
-                    appeal: '{{ $row->appeal ?? 'N/A' }}',
-                    status: '{{ $row->status }}'
+                    status: '{{ $row->status }}',
+                    appeal: '{{ $row->appeal ?? 'N/A' }}'
                   })"
                   class="text-green-600 hover:text-green-800" 
                   title="View Details">
                   <i data-lucide="eye" class="w-5 h-5"></i>
                 </button>
 
-                <a href="{{ route('violations.edit', $row->id) }}" class="text-blue-600 hover:text-blue-800" title="Edit">
+                <a href="{{ route('violations.edit', $row->violation_id) }}" class="text-blue-600 hover:text-blue-800" title="Edit">
                   <i data-lucide="pencil" class="w-5 h-5"></i>
                 </a>
-                <form action="{{ route('violations.destroy', $row->id) }}" method="POST" onsubmit="return confirm('Delete this record?')" class="inline">
+                <form action="{{ route('violations.destroy', $row->violation_id) }}" method="POST" onsubmit="return confirm('Delete this record?')" class="inline">
                   @csrf @method('DELETE')
                   <button type="submit" class="text-red-600 hover:text-red-800" title="Delete">
                     <i data-lucide="trash-2" class="w-5 h-5"></i>

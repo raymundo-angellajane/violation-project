@@ -23,20 +23,28 @@
           @error('student_no') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
 
-        {{-- Name --}}
+        {{-- First Name --}}
         <div>
-          <label class="block text-sm font-semibold text-[#7A0000] mb-1">Name</label>
-          <input type="text" name="name" value="{{ old('name') }}" 
+          <label class="block text-sm font-semibold text-[#7A0000] mb-1">First Name</label>
+          <input type="text" name="first_name" value="{{ old('first_name') }}" 
                  class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]" required>
-          @error('name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+          @error('first_name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        {{-- Last Name --}}
+        <div>
+          <label class="block text-sm font-semibold text-[#7A0000] mb-1">Last Name</label>
+          <input type="text" name="last_name" value="{{ old('last_name') }}" 
+                 class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]" required>
+          @error('last_name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
 
         {{-- Course --}}
         <div>
           <label class="block text-sm font-semibold text-[#7A0000] mb-1">Course</label>
-          <input type="text" name="course" value="{{ old('course') }}" 
+          <input type="text" name="course_id" value="{{ old('course_id') }}" 
                  class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]" required>
-          @error('course') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+          @error('course_id') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
 
         {{-- Year Level --}}
@@ -61,9 +69,9 @@
         {{-- Date --}}
         <div>
           <label class="block text-sm font-semibold text-[#7A0000] mb-1">Date</label>
-          <input type="date" name="date" value="{{ old('date') }}" 
+          <input type="date" name="violation_date" value="{{ old('violation_date') }}" 
                  class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]" required>
-          @error('date') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+          @error('violation_date') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
 
         {{-- Details --}}
