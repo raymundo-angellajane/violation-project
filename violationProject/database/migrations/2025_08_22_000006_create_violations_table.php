@@ -7,27 +7,31 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::create('violations', function (Blueprint $table) {
-            $table->bigIncrements('violation_id')->change();
-            $table->string('student_no');
-            $table->string('first_name');   
-            $table->string('last_name');
-            $table->string('course_id');
+            $table->bigIncrements('violation_id')->primary();
+             $table->unsignedBigInteger('student_id');
+            $table->unsignedBigInteger('course_id');
             $table->string('year_level');
             $table->string('type');
+            $table->string('details')->nullable();
             $table->date('violation_date');
             $table->string('penalty');
             $table->string('status');
-            $table->unsignedBigInteger('reviewed_by')->nullable();
+            $table->string('reviewed_by', 50)->nullable();
             $table->timestamps();  
 
-            $table->foreign('student_no')
-                  ->references('student_no')
+            $table->foreign('student_id')
+                  ->references('student_id')
                   ->on('students')
                   ->onDelete('cascade');
 
+            $table->foreign('course_id')
+                  ->references('course_id')
+                  ->on('courses')
+                  ->onDelete('cascade');
+
             $table->foreign('reviewed_by')
-                  ->references('id')
-                  ->on('users')
+                  ->references('faculty_id')
+                  ->on('faculties')
                   ->onDelete('set null');
         });
     }

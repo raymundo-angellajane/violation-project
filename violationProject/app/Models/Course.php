@@ -24,4 +24,9 @@ class Course extends Model
     {
         return $this->hasMany(Student::class, 'course_id', 'course_id');
     }
+
+     public function violations()
+    {
+        return $this->hasMany(Violation::class, 'course_id', 'course_id');
+    }
 }

@@ -22,8 +22,13 @@ class Faculty extends Model
     ];
 
     // Relationships
-    public function reviewers()
+    public function reviewedViolations()
     {
-        return $this->hasMany(Reviewer::class, 'faculty_id', 'faculty_id');
+        return $this->hasMany(Violation::class, 'reviewed_by', 'faculty_id');
+    }
+
+    public function reviewedAppeals()
+    {
+        return $this->hasMany(StudentAppeal::class, 'reviewed_by', 'faculty_id');
     }
 }

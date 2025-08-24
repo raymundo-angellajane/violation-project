@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Violation Summary Report</title>
     <style>
-        body { font-family: sans-serif; font-size: 12px; }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
         h1, h2, h3 { margin: 0; padding: 0; }
         .header { text-align: center; margin-bottom: 20px; }
         .header h1 { color: #7A0000; }
@@ -27,7 +27,7 @@
 
     <!-- Metadata -->
     <div class="meta">
-        <p><strong>Total Records:</strong> {{ count($violations) }}</p>
+        <p><strong>Total Records:</strong> {{ $violations->count() }}</p>
     </div>
 
     <!-- Table of Violations -->
@@ -48,13 +48,13 @@
         <tbody>
             @foreach($violations as $v)
                 <tr>
-                    <td>{{ $v->student_no }}</td>
-                    <td>{{ $v->name }}</td>
-                    <td>{{ $v->course }}</td>
+                    <td>{{ $v->student->student_no ?? 'N/A' }}</td>
+                    <td>{{ $v->student->first_name ?? 'N/A' }} {{ $v->student->last_name ?? '' }}</td>
+                    <td>{{ $v->course?->course_code ?? 'N/A' }}</td>
                     <td>{{ $v->year_level }}</td>
                     <td>{{ $v->type }}</td>
                     <td>{{ $v->details }}</td>
-                    <td>{{ \Carbon\Carbon::parse($v->date)->format('M d, Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($v->violation_date)->format('M d, Y') }}</td>
                     <td>{{ $v->penalty }}</td>
                     <td>{{ $v->status }}</td>
                 </tr>
@@ -87,7 +87,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        <p>Violation Management System — Generated PDF Report</p>
+        <p>Violation Module — Generated PDF Report</p>
     </div>
 </body>
 </html>

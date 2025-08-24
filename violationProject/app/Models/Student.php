@@ -10,12 +10,12 @@ class Student extends Model
     use HasFactory;
 
     protected $table = 'students';
-    protected $primaryKey = 'student_no';
+    protected $primaryKey = 'student_id';
     public $incrementing = true;
     protected $keyType = 'int';
 
     protected $fillable = [
-        'student_id',
+        'student_no',
         'first_name',
         'last_name',
         'course_id',
@@ -32,11 +32,11 @@ class Student extends Model
 
     public function violations()
     {
-        return $this->hasMany(Violation::class, 'student_no', 'student_no');
+        return $this->hasMany(Violation::class, 'student_id', 'student_id');
     }
 
-    public function appeals()
+    public function studentAppeals()
     {
-        return $this->hasMany(StudentAppeal::class, 'student_no', 'student_no');
+        return $this->hasMany(StudentAppeal::class, 'student_id', 'student_id');
     }
 }

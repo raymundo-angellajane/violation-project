@@ -16,7 +16,7 @@ class StudentAppeal extends Model
 
     protected $fillable = [
         'student_appeal_id',
-        'student_no',
+        'student_id',
         'violation_id',
         'appeal_id',
         'status',
@@ -26,7 +26,7 @@ class StudentAppeal extends Model
     // Relationships
     public function student()
     {
-        return $this->belongsTo(Student::class, 'student_no', 'student_no');
+        return $this->belongsTo(Student::class, 'student_id', 'student_id');
     }
 
     public function violation()
@@ -39,8 +39,8 @@ class StudentAppeal extends Model
         return $this->belongsTo(Appeal::class, 'appeal_id', 'appeal_id');
     }
 
-    public function reviewer()
+    public function facultyReviewer()
     {
-        return $this->belongsTo(Reviewer::class, 'reviewed_by', 'reviewer_id');
+        return $this->belongsTo(Faculty::class, 'reviewed_by', 'faculty_id');
     }
 }

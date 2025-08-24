@@ -8,15 +8,15 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('student_appeals', function (Blueprint $table) {
             $table->string('student_appeal_id', 50)->primary();
-            $table->unsignedBigInteger('student_no');
-            $table->string('violation_id', 50);
+            $table->unsignedBigInteger('student_id');
+            $table->unsignedBigInteger('violation_id');
             $table->string('appeal_id', 50);
             $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
             $table->string('reviewed_by', 50)->nullable();
             $table->timestamps();
 
-            $table->foreign('student_no')
-                  ->references('student_no')
+            $table->foreign('student_id')
+                  ->references('student_id')
                   ->on('students')
                   ->onDelete('cascade');
 
@@ -31,9 +31,9 @@ return new class extends Migration {
                   ->onDelete('cascade');
 
             $table->foreign('reviewed_by')
-                  ->references('reviewer_id')
-                  ->on('reviewers')
-                  ->onDelete('set null');
+                ->references('faculty_id')
+                ->on('faculties')
+                ->onDelete('set null');
         });
     }
 

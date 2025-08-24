@@ -36,7 +36,6 @@
 
     <!-- Controls -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-
       <!-- Search + Sort -->
       <div class="flex w-full sm:w-auto gap-3 items-center">
         <!-- Search -->
@@ -64,12 +63,12 @@
 
       <!-- Buttons -->
       <div class="flex gap-3">
-        <a href="{{ route('violations.create') }}"
+        <a href="{{ route('faculty.violations.create') }}"
           class="inline-flex items-center gap-2 rounded-xl bg-brand-700 hover:bg-brand-700/90 text-white font-semibold px-4 py-2.5 shadow transition">
           <i data-lucide="plus" class="w-5 h-5"></i>
           Add Record
         </a>
-        <a href="{{ route('violations.exportPdf') }}"
+        <a href="{{ route('faculty.violations.exportPdf') }}"
           class="inline-flex items-center gap-2 rounded-xl bg-neutral-700 hover:bg-neutral-800 text-white font-semibold px-4 py-2.5 shadow transition">
           <i data-lucide="file-text" class="w-5 h-5"></i>
           Export PDF
@@ -84,8 +83,7 @@
         <div class="bg-brand-700 text-white border-b border-neutral-200">
           <div class="grid grid-cols-11 divide-x divide-neutral-300/30 px-6 py-3 text-sm font-semibold">
             <div class="text-center">Student No.</div>
-            <div class="text-center">First Name</div>
-            <div class="text-center">Last Name</div>
+            <div class="text-center">Name</div>
             <div class="text-center">Course</div>
             <div class="text-center">Year Level</div>
             <div class="text-center">Type</div>
@@ -94,7 +92,7 @@
             <div class="text-center">Penalty</div>
             <div class="text-center">Appeal</div>
             <div class="text-center">Status</div>
-            <div class="text-center">Actions</div>  
+            <div class="text-center">Actions</div>
           </div>
         </div>
 
@@ -102,13 +100,12 @@
         <div id="tableBody" class="divide-y divide-neutral-200">
           @forelse($violations as $row)
             <div class="violation-row grid grid-cols-11 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 odd:bg-neutral-50/40 transition text-sm items-center">
-              <div class="font-medium text-center student-no">{{ $row->student_no }}</div>
-              <div class="text-center">{{ $row->first_name }}</div>
-              <div class="text-center">{{ $row->last_name }}</div>
-              <div class="text-center">{{ $row->course_id }}</div>
-              <div class="text-center">{{ $row->year_level }}</div>
+              <div class="text-center student-no">{{ $row->student->student_no }}</div>
+              <div class="text-center name">{{ $row->student->first_name }} {{ $row->student->last_name }}</div>
+              <div class="text-center">{{ $row->course->course_name }}</div>
+              <div class="text-center">{{ $row->student->year_level }}</div>
               <div class="text-center">{{ $row->type }}</div>
-              <div class="text-center">{{ $row->details ?? 'N/A'}}</div>
+              <div class="text-center">{{ $row->details ?? 'N/A' }}</div>
               <div class="text-center">{{ \Carbon\Carbon::parse($row->violation_date)->format('M d, Y') }}</div>
               <div class="text-center">{{ $row->penalty }}</div>
               <div class="text-center">{{ $row->appeal ?? 'N/A' }}</div>
@@ -121,13 +118,14 @@
                 </span>
               </div>
               <div class="flex items-center justify-center gap-3">
-                <!-- FIXED BUTTON -->
+                <!-- 👁 View Button -->
                 <button 
                   onclick="openDetailsModal({
-                    student_no: '{{ $row->student_no }}',
-                    name: '{{ $row->first_name }} {{ $row->last_name }}',
-                    course: '{{ $row->course_id }}',
-                    year_level: '{{ $row->year_level }}',
+                    id: '{{ $row->violation_id }}',
+                    student_no: '{{ $row->student->student_no }}',
+                    name: '{{ $row->student->first_name }} {{ $row->student->last_name }}',
+                    course: '{{ $row->course->course_name }}',
+                    year_level: '{{ $row->student->year_level }}',
                     type: '{{ $row->type }}',
                     details: '{{ $row->details ?? 'N/A' }}',
                     date: '{{ \Carbon\Carbon::parse($row->violation_date)->format('M d, Y') }}',
@@ -140,10 +138,10 @@
                   <i data-lucide="eye" class="w-5 h-5"></i>
                 </button>
 
-                <a href="{{ route('violations.edit', $row->violation_id) }}" class="text-blue-600 hover:text-blue-800" title="Edit">
+                <a href="{{ route('faculty.violations.edit', $row->violation_id) }}" class="text-blue-600 hover:text-blue-800" title="Edit">
                   <i data-lucide="pencil" class="w-5 h-5"></i>
                 </a>
-                <form action="{{ route('violations.destroy', $row->violation_id) }}" method="POST" onsubmit="return confirm('Delete this record?')" class="inline">
+                <form action="{{ route('faculty.violations.destroy', $row->violation_id) }}" method="POST" onsubmit="return confirm('Delete this record?')" class="inline">
                   @csrf @method('DELETE')
                   <button type="submit" class="text-red-600 hover:text-red-800" title="Delete">
                     <i data-lucide="trash-2" class="w-5 h-5"></i>
@@ -162,18 +160,25 @@
     </div>
   </div>
 
-  <!-- Details Modal -->
-  <div id="detailsModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-lg p-6">
-      <h2 class="text-xl font-bold mb-4">Violation Details</h2>
-      <div id="modalContent" class="space-y-2 text-sm text-neutral-700"></div>
-      <div class="mt-6 flex justify-end">
-        <button onclick="closeDetailsModal()" class="px-4 py-2 rounded-lg bg-brand-700 text-white hover:bg-brand-700/90">Close</button>
+  <!-- 🔹 Modal -->
+  <div id="details-modal" class="fixed inset-0 hidden bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg max-w-2xl w-full p-6">
+      <h3 class="text-lg font-semibold mb-4">Violation Details</h3>
+      <div id="details-content" class="space-y-3 text-sm text-neutral-700">
+        {{-- Filled by JS --}}
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <!-- Approve/Reject will be injected by JS -->
+        <button onclick="closeDetailsModal()" 
+          class="px-4 py-2 rounded-lg bg-brand-700 text-white hover:bg-brand-700/90 transition">
+          Close
+        </button>
       </div>
     </div>
   </div>
 
   <script>
+    // === Search & Sort ===
     const searchInput = document.getElementById('searchInput');
     const sortSelect = { value: '' };
     const tableBody = document.getElementById('tableBody');
@@ -181,13 +186,11 @@
     const sortMenu = document.getElementById('sortMenu');
     const sortLabel = document.getElementById('sortLabel');
 
-    // Toggle sort menu
     sortButton.addEventListener('click', () => sortMenu.classList.toggle('hidden'));
     document.addEventListener('click', e => {
       if (!sortButton.contains(e.target) && !sortMenu.contains(e.target)) sortMenu.classList.add('hidden');
     });
 
-    // Select sort
     sortMenu.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', () => {
         sortLabel.textContent = btn.textContent;
@@ -197,7 +200,6 @@
       });
     });
 
-    // Filter + Sort
     function filterAndSort() {
       const term = searchInput.value.toLowerCase();
       const rows = Array.from(tableBody.querySelectorAll('.violation-row'));
@@ -228,9 +230,34 @@
     }
     searchInput.addEventListener('input', filterAndSort);
 
-    // Modal
+    // === Modal ===
     function openDetailsModal(v) {
-      const content = document.getElementById('modalContent');
+      const content = document.getElementById('details-content');
+      let appealActions = '';
+
+      if (v.appeal !== 'N/A' && v.status.toLowerCase() === 'pending') {
+        appealActions = `
+          <div class="flex justify-end gap-2 mt-4">
+            <form action="/faculty/appeals/${v.id}" method="POST">
+              @csrf @method('PUT')
+              <input type="hidden" name="status" value="approved">
+              <button type="submit" 
+                class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition">
+                ✅ Approve
+              </button>
+            </form>
+            <form action="/faculty/appeals/${v.id}" method="POST">
+              @csrf @method('PUT')
+              <input type="hidden" name="status" value="rejected">
+              <button type="submit" 
+                class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
+                ❌ Reject
+              </button>
+            </form>
+          </div>
+        `;
+      }
+
       content.innerHTML = `
         <p><strong>Student No:</strong> ${v.student_no}</p>
         <p><strong>Name:</strong> ${v.name}</p>
@@ -242,14 +269,17 @@
         <p><strong>Penalty:</strong> ${v.penalty}</p>
         <p><strong>Status:</strong> ${v.status}</p>
         <p><strong>Appeal:</strong> ${v.appeal}</p>
+        ${appealActions}
       `;
-      document.getElementById('detailsModal').classList.remove('hidden');
-    }
-    function closeDetailsModal() {
-      document.getElementById('detailsModal').classList.add('hidden');
+
+      document.getElementById('details-modal').classList.remove('hidden');
     }
 
-    // Auto-hide flash message
+    function closeDetailsModal() {
+      document.getElementById('details-modal').classList.add('hidden');
+    }
+
+    // === Flash Message Auto-hide ===
     document.addEventListener("DOMContentLoaded", () => {
       const msg = document.getElementById("successMessage");
       if (msg) {

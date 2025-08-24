@@ -10,18 +10,35 @@
   <div class="max-w-3xl mx-auto px-6 py-12">
     <h1 class="text-3xl font-extrabold mb-8 text-center text-[#7A0000]">Add Violation</h1>
 
-    <form action="{{ route('violations.store') }}" method="POST" 
+    <form action="{{ route('faculty.violations.store') }}" method="POST" 
           class="bg-white p-8 rounded-2xl shadow-xl border border-neutral-200">
       @csrf
 
       <div class="grid grid-cols-2 gap-6">
         {{-- Student No --}}
         <div>
-          <label class="block text-sm font-semibold text-[#7A0000] mb-1">Student No.</label>
+          <label class="block text-sm font-semibold text-[#7A0000] mb-1">Student No</label>
           <input type="text" name="student_no" value="{{ old('student_no') }}" 
-                 class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]" required>
+                class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]" required>
           @error('student_no') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
+
+        {{-- Course --}}
+        <div>
+          <label class="block text-sm font-semibold text-[#7A0000] mb-1">Course</label>
+          <select name="course_id"
+                  class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]" 
+                  required>
+            <option value="">-- Select Course --</option>
+            @foreach($courses as $course)
+              <option value="{{ $course->course_id }}" {{ old('course_id') == $course->course_id ? 'selected' : '' }}>
+                {{ $course->course_code }} - {{ $course->course_name }}
+              </option>
+            @endforeach
+          </select>
+          @error('course_id') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+        </div>
+
 
         {{-- First Name --}}
         <div>
@@ -39,14 +56,6 @@
           @error('last_name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
 
-        {{-- Course --}}
-        <div>
-          <label class="block text-sm font-semibold text-[#7A0000] mb-1">Course</label>
-          <input type="text" name="course_id" value="{{ old('course_id') }}" 
-                 class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]" required>
-          @error('course_id') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-        </div>
-
         {{-- Year Level --}}
         <div>
           <label class="block text-sm font-semibold text-[#7A0000] mb-1">Year Level</label>
@@ -57,7 +66,7 @@
 
         {{-- Type --}}
         <div>
-          <label class="block text-sm font-semibold text-[#7A0000] mb-1">Type</label>
+          <label class="block text-sm font-semibold text-[#7A0000] mb-1">Violation Type</label>
           <select name="type" 
                   class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]" required>
             <option value="Minor" {{ old('type')=='Minor' ? 'selected' : '' }}>Minor</option>
@@ -107,7 +116,7 @@
                 class="bg-[#7A0000] hover:bg-[#600000] text-white px-6 py-2.5 rounded-xl font-semibold shadow-md">
           Save
         </button>
-        <a href="{{ route('violations.index') }}" 
+        <a href="{{ route('faculty.violations.index') }}" 
            class="bg-neutral-200 hover:bg-neutral-300 text-neutral-800 px-6 py-2.5 rounded-xl font-semibold shadow-md">
           Cancel
         </a>

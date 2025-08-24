@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::create('students', function (Blueprint $table) {
-            $table->bigIncrements('student_no'); // PK
-            $table->string('student_id', 50)->unique(); 
+            $table->id('student_id'); // PK
+            $table->string('student_no');
             $table->string('first_name');
             $table->string('last_name');
             $table->unsignedBigInteger('course_id'); 
