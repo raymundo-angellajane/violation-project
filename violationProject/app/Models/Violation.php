@@ -46,4 +46,10 @@ class Violation extends Model
         {
     return $this->hasMany(StudentAppeal::class, 'violation_id', 'violation_id');
     }
+
+    public function getFormattedIdAttribute()
+    {
+        return 'VIO-' . str_pad($this->violation_id, 4, '0', STR_PAD_LEFT);
+    }
+
 }

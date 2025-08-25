@@ -70,7 +70,7 @@
         <div class="divide-y divide-neutral-200">
           @forelse($violations as $row)
             <div class="grid grid-cols-9 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 odd:bg-neutral-50/40 transition text-sm items-center">
-              <div class="text-center">{{ $row->violation_id }}</div>
+              <div class="text-center">{{ $row->formatted_id }}</div>
               <div class="text-center">{{ $row->type }}</div>
               <div class="text-center">{{ $row->details ?? 'N/A' }}</div>
               <div class="text-center">{{ \Carbon\Carbon::parse($row->violation_date)->format('M d, Y') }}</div>
@@ -79,7 +79,7 @@
               <!-- Appeal -->
               <div class="text-center">
                 @if(!$row->studentAppeals->count())
-                  <button onclick="openAppealModal('{{ $row->violation_id }}')" 
+                  <button onclick="openAppealModal('{{ $row->formatted_id }}')" 
                           class="text-blue-600 hover:text-blue-800 font-medium">
                     Submit Appeal
                   </button>
@@ -113,7 +113,7 @@
               <!-- Actions -->
               <div class="flex items-center justify-center">
                 <button onclick="openDetailsModal(
-                  '{{ $row->violation_id }}',
+                  '{{ $row->formatted_id }}',
                   '{{ $row->type }}',
                   '{{ $row->details ?? 'N/A' }}',
                   '{{ \Carbon\Carbon::parse($row->violation_date)->format('M d, Y') }}',
