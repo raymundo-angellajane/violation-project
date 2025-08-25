@@ -15,6 +15,7 @@
       @csrf
       @method('PUT')
 
+      {{-- Grid Fields --}}
       <div class="grid grid-cols-2 gap-6">
         {{-- Student No --}}
         <div>
@@ -108,15 +109,21 @@
         {{-- Status --}}
         <div>
           <label class="block text-sm font-semibold text-[#7A0000] mb-1">Status</label>
-          <select name="status" 
-                  class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]">
-            <option value="Pending" {{ old('status', $violation->status) == 'Pending' ? 'selected' : '' }}>Pending</option>
-            <option value="Disclosed" {{ old('status', $violation->status) == 'Disclosed' ? 'selected' : '' }}>Disclosed</option>
+          <select name="status"
+                  class="w-full border border-neutral-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000] focus:border-[#7A0000]"
+                  @if($violation->status == 'Cleared') disabled @endif>
+              <option value="Pending" {{ old('status', $violation->status) == 'Pending' ? 'selected' : '' }}>Pending</option>
+              <option value="Disclosed" {{ old('status', $violation->status) == 'Disclosed' ? 'selected' : '' }}>Disclosed</option>
+              <option value="Cleared" {{ old('status', $violation->status) == 'Cleared' ? 'selected' : '' }}>Cleared</option>
           </select>
+          @if($violation->status == 'Cleared')
+              <p class="text-sm text-green-600 mt-1">Status is locked because appeal was approved.</p>
+          @endif
           @error('status') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
-      </div>
+      </div> {{-- END GRID --}}
 
+      {{-- Buttons --}}
       <div class="mt-8 flex justify-center gap-4">
         <button type="submit" 
                 class="bg-[#7A0000] hover:bg-[#600000] text-white px-6 py-2.5 rounded-xl font-semibold shadow-md">

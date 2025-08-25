@@ -84,6 +84,14 @@ class ViolationController extends Controller
     // Update violation
     public function update(Request $request, $id)
     {
+        $violation = Violation::findOrFail($id);
+
+        // Prevent changes to status if it's already Cleared
+        if ($violation->status === 'Cleared') {
+            return redirect()->route('faculty.violations.index')
+                            ->with('error', 'This violation is locked because the appeal was approved.');
+        }
+
         $validated = $request->validate([
             'student_no'     => 'required|string',
             'first_name'     => 'required|string',
@@ -97,10 +105,8 @@ class ViolationController extends Controller
             'status'         => 'required|string',
         ]);
 
-        $violation = Violation::findOrFail($id);
         $student = $violation->student;
 
-        // ✅ Update student info
         $student->update([
             'student_no' => $validated['student_no'],
             'first_name' => $validated['first_name'],
@@ -109,7 +115,6 @@ class ViolationController extends Controller
             'year_level' => $validated['year_level'],
         ]);
 
-        // ✅ Update violation info
         $violation->update([
             'course_id'      => $validated['course_id'],
             'year_level'     => $validated['year_level'],
@@ -120,7 +125,8 @@ class ViolationController extends Controller
             'status'         => $validated['status'],
         ]);
 
-        return redirect()->route('faculty.violations.index')->with('success', 'Violation updated successfully!');
+        return redirect()->route('faculty.violations.index')
+                        ->with('success', 'Violation updated successfully!');
     }
 
     // Delete violation

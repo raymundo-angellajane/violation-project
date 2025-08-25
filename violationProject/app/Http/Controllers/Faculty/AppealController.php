@@ -45,4 +45,18 @@ class AppealController extends Controller
         return redirect()->route('faculty.appeals.index')
             ->with('success', 'Appeal reviewed successfully.');
     }
+
+    public function approve($id)
+    {
+        $appeal = Appeal::findOrFail($id);
+        $appeal->status = 'Approved';
+        $appeal->save();
+
+        $violation = $appeal->violation;
+        $violation->status = 'Cleared';
+        $violation->save();
+
+        return redirect()->back()->with('success', 'Appeal approved and violation status set to Cleared.');
+    }
+
 }
