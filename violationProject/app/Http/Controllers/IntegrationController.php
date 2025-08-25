@@ -28,7 +28,7 @@ class IntegrationController extends Controller
         ];
 
         $client = new Client([
-            'base_uri' => $baseURL,
+            'base_url' => $baseURL,
 
         ]);
 
