@@ -75,6 +75,10 @@
                 <td>{{ $violations->where('status', 'Disclosed')->count() }}</td>
             </tr>
             <tr>
+                <th>Total Cleared</th>
+                <td>{{ $violations->where('status', 'Cleared')->count() }}</td>
+            </tr>
+            <tr>
                 <th>Total Major Violations</th>
                 <td>{{ $violations->where('type', 'Major')->count() }}</td>
             </tr>
@@ -87,7 +91,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        <p>Violation Module — Generated PDF Report</p>
+        <p>Violation Report - Polytechnic University of the Philippines (Taguig Campus)</p>
     </div>
 </body>
 </html>

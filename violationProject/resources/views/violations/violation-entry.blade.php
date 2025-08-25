@@ -116,12 +116,12 @@
                     type="button"
                     class="text-blue-600 hover:underline"
                     data-appeal='{!! json_encode([
-                      "violation_id"  => {{ $row->formatted_id }},
+                      "violation_id"  => $row->formatted_id,
                       "student_no"    => $row->student->student_no,
                       "name"          => $row->student->first_name . " " . $row->student->last_name,
                       "course"        => $row->course->course_name,
                       "year_level"    => $row->student->year_level,
-                      "type"          => $row->typ
+                      "type"          => $row->type,
                       "date"          => \Carbon\Carbon::parse($row->violation_date)->format("M d, Y"),
                       "appeal"        => $row->studentAppeals->first()->appeal->appeal_text,
                       "appeal_id"     => $row->studentAppeals->first()->appeal_id,
@@ -167,10 +167,10 @@
                   <i data-lucide="eye" class="w-5 h-5"></i>
                 </button>
 
-                <a href="{{ route('faculty.violations.edit', $row->formatted_id) }}" class="text-blue-600 hover:text-blue-800" title="Edit">
+                <a href="{{ route('faculty.violations.edit', $row->violation_id) }}" class="text-blue-600 hover:text-blue-800" title="Edit">
                   <i data-lucide="pencil" class="w-5 h-5"></i>
                 </a>
-                <form action="{{ route('faculty.violations.destroy', $row->formatted_id) }}" method="POST" onsubmit="return confirm('Delete this record?')" class="inline">
+                <form action="{{ route('faculty.violations.destroy', $row->violation_id) }}" method="POST" onsubmit="return confirm('Delete this record?')" class="inline">
                   @csrf @method('DELETE')
                   <button type="submit" class="text-red-600 hover:text-red-800" title="Delete">
                     <i data-lucide="trash-2" class="w-5 h-5"></i>
@@ -354,17 +354,10 @@
       const hasAppeal = v.appeal && v.appeal !== 'N/A';
 
       content.innerHTML = `
-        <div class="grid grid-cols-2 gap-3">
-          <p><strong>Student No:</strong> ${escapeHtml(v.student_no)}</p>
-          <p><strong>Name:</strong> ${escapeHtml(v.name)}</p>
-          <p><strong>Course:</strong> ${escapeHtml(v.course)}</p>
-          <p><strong>Year Level:</strong> ${escapeHtml(v.year_level)}</p>
-          <p><strong>Violation:</strong> ${escapeHtml(v.type)}</p>
-          <p><strong>Date:</strong> ${escapeHtml(v.date)}</p>
-        </div>
+        <p><strong>Appeal ID:</strong> ${escapeHtml(v.appeal_id)}</p>
 
         <div class="mt-3">
-          <p class="mb-1"><strong>Appeal:</strong></p>
+          <p class="mb-1"><strong>Appeal Message:</strong></p>
           <div class="whitespace-pre-wrap bg-neutral-50 border border-neutral-200 rounded-lg p-3">
             ${hasAppeal ? escapeHtml(v.appeal) : 'N/A'}
           </div>
@@ -385,6 +378,7 @@
 
       document.getElementById('appeal-modal').classList.remove('hidden');
     }
+
     function closeAppealModal() {
       document.getElementById('appeal-modal').classList.add('hidden');
     }
