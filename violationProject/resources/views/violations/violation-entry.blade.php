@@ -24,17 +24,17 @@
 <body class="bg-neutral-50 text-neutral-800 antialiased">
   <div class="max-w-[1400px] mx-auto px-6 py-10">
 
-    <!-- Flash Message -->
+    {{-- Flash Message --}}
     @if(session('success'))
       <div id="successMessage" class="mb-4 rounded-lg bg-green-100 border border-green-300 text-green-800 px-4 py-3">
         {{ session('success') }}
       </div>
     @endif
 
-    <!-- Title -->
+    {{-- Title --}}
     <h1 class="text-3xl font-bold tracking-tight mb-6">Violation Entry</h1>
 
-    <!-- Controls -->
+    {{-- Controls --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
       <!-- Search + Sort -->
       <div class="flex w-full sm:w-auto gap-3 items-center">
@@ -76,10 +76,10 @@
       </div>
     </div>
 
-    <!-- Table -->
+    {{-- Table --}}
     <div class="overflow-x-auto rounded-2xl bg-white shadow border border-neutral-200">
       <div class="min-w-[1200px]">
-        <!-- Header -->
+        {{-- Header --}}
         <div class="bg-brand-700 text-white border-b border-neutral-200">
           <div class="grid grid-cols-11 divide-x divide-neutral-300/30 px-6 py-3 text-sm font-semibold">
             <div class="text-center">Student No.</div>
@@ -96,7 +96,7 @@
           </div>
         </div>
 
-        <!-- Body -->
+        {{-- Body --}}
         <div id="tableBody" class="divide-y divide-neutral-200">
           @forelse($violations as $row)
             <div class="violation-row grid grid-cols-11 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 odd:bg-neutral-50/40 transition text-sm items-center">
@@ -108,7 +108,34 @@
               <div class="text-center">{{ $row->details ?? 'N/A' }}</div>
               <div class="text-center">{{ \Carbon\Carbon::parse($row->violation_date)->format('M d, Y') }}</div>
               <div class="text-center">{{ $row->penalty }}</div>
-              <div class="text-center">{{ $row->appeal ?? 'N/A' }}</div>
+
+              {{-- Appeal column -> opens Appeal Modal --}}
+              <div class="text-center">
+                @if($row->studentAppeals->isNotEmpty())
+                  <button
+                    type="button"
+                    class="text-blue-600 hover:underline"
+                    data-appeal='{!! json_encode([
+                      "violation_id"  => $row->violation_id,
+                      "student_no"    => $row->student->student_no,
+                      "name"          => $row->student->first_name . " " . $row->student->last_name,
+                      "course"        => $row->course->course_name,
+                      "year_level"    => $row->student->year_level,
+                      "type"          => $row->type,
+                      "date"          => \Carbon\Carbon::parse($row->violation_date)->format("M d, Y"),
+                      "appeal"        => $row->studentAppeals->first()->appeal->appeal_text,
+                      "appeal_id"     => $row->studentAppeals->first()->appeal_id,
+                      "appeal_status" => $row->studentAppeals->first()->status,
+                    ]) !!}'
+                    onclick="openAppealModal(this)">
+                    View Appeal
+                  </button>
+                @else
+                  N/A
+                @endif
+              </div>
+
+              {{-- Status pill --}}
               <div class="text-center">
                 <span class="px-2.5 py-1 rounded-full text-xs font-semibold
                   {{ strtolower($row->status) == 'pending' ? 'bg-amber-100 text-amber-800' : '' }}
@@ -117,24 +144,26 @@
                   {{ ucfirst($row->status) }}
                 </span>
               </div>
+
+              {{-- Actions --}}
               <div class="flex items-center justify-center gap-3">
-                <!-- 👁 View Button -->
-                <button 
-                  onclick="openDetailsModal({
-                    id: '{{ $row->violation_id }}',
-                    student_no: '{{ $row->student->student_no }}',
-                    name: '{{ $row->student->first_name }} {{ $row->student->last_name }}',
-                    course: '{{ $row->course->course_name }}',
-                    year_level: '{{ $row->student->year_level }}',
-                    type: '{{ $row->type }}',
-                    details: '{{ $row->details ?? 'N/A' }}',
-                    date: '{{ \Carbon\Carbon::parse($row->violation_date)->format('M d, Y') }}',
-                    penalty: '{{ $row->penalty }}',
-                    status: '{{ $row->status }}',
-                    appeal: '{{ $row->appeal ?? 'N/A' }}'
-                  })"
-                  class="text-green-600 hover:text-green-800" 
-                  title="View Details">
+                <!-- View Violation Details -->
+                <button
+                  type="button"
+                  class="text-green-600 hover:text-green-800"
+                  title="View Details"
+                  data-details='{!! json_encode([
+                    "student_no" => $row->student->student_no,
+                    "name"       => $row->student->first_name . " " . $row->student->last_name,
+                    "course"     => $row->course->course_name,
+                    "year_level" => $row->student->year_level,
+                    "type"       => $row->type,
+                    "details"    => $row->details ?? "N/A",
+                    "date"       => \Carbon\Carbon::parse($row->violation_date)->format("M d, Y"),
+                    "penalty"    => $row->penalty,
+                    "status"     => $row->status,
+                  ]) !!}'
+                  onclick="openDetailsModalFromBtn(this)">
                   <i data-lucide="eye" class="w-5 h-5"></i>
                 </button>
 
@@ -160,16 +189,51 @@
     </div>
   </div>
 
-  <!-- 🔹 Modal -->
+  {{-- Violation Details Modal (read-only) --}}
   <div id="details-modal" class="fixed inset-0 hidden bg-black/50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-lg max-w-2xl w-full p-6">
       <h3 class="text-lg font-semibold mb-4">Violation Details</h3>
-      <div id="details-content" class="space-y-3 text-sm text-neutral-700">
-        {{-- Filled by JS --}}
-      </div>
+      <div id="details-content" class="space-y-3 text-sm text-neutral-700"></div>
+
       <div class="mt-6 flex justify-end gap-2">
-        <!-- Approve/Reject will be injected by JS -->
-        <button onclick="closeDetailsModal()" 
+        <button onclick="closeDetailsModal()"
+          class="px-4 py-2 rounded-lg bg-brand-700 text-white hover:bg-brand-700/90 transition">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {{-- Appeal Modal (Approve/Reject only when pending) --}}
+  <div id="appeal-modal" class="fixed inset-0 hidden bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg max-w-2xl w-full p-6">
+      <h3 class="text-lg font-semibold mb-4">Appeal Details</h3>
+
+      <div id="appeal-content" class="space-y-3 text-sm text-neutral-700"></div>
+
+      <div id="appeal-actions" class="hidden mt-6 flex justify-end gap-2">
+        <form id="appeal-approve-form" method="POST">
+          @csrf
+          @method('PUT')
+          <input type="hidden" name="status" value="Approved">
+          <button type="submit"
+            class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition">
+            ✅ Approve
+          </button>
+        </form>
+        <form id="appeal-reject-form" method="POST">
+          @csrf
+          @method('PUT')
+          <input type="hidden" name="status" value="Rejected">
+          <button type="submit"
+            class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
+            ❌ Reject
+          </button>
+        </form>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button onclick="closeAppealModal()"
           class="px-4 py-2 rounded-lg bg-brand-700 text-white hover:bg-brand-700/90 transition">
           Close
         </button>
@@ -203,83 +267,137 @@
     function filterAndSort() {
       const term = searchInput.value.toLowerCase();
       const rows = Array.from(tableBody.querySelectorAll('.violation-row'));
+
+      // Filter
       rows.forEach(row => {
         const studentNo = row.querySelector('.student-no').textContent.toLowerCase();
-        const name = row.querySelector('div:nth-child(2)').textContent.toLowerCase();
+        const name = row.querySelector('.name').textContent.toLowerCase();
         row.style.display = (studentNo.includes(term) || name.includes(term)) ? '' : 'none';
       });
 
+      // Sort
       const value = sortSelect.value;
       if (!value) return;
+
       const visibleRows = rows.filter(r => r.style.display !== 'none');
       visibleRows.sort((a, b) => {
-        let aVal, bVal;
-        switch(value) {
-          case 'date-asc': case 'date-desc':
-            aVal = new Date(a.querySelector('div:nth-child(7)').textContent);
-            bVal = new Date(b.querySelector('div:nth-child(7)').textContent);
-            break;
-          case 'name-asc': case 'name-desc':
-            aVal = a.querySelector('div:nth-child(2)').textContent.toLowerCase();
-            bVal = b.querySelector('div:nth-child(2)').textContent.toLowerCase();
-            break;
+        switch (value) {
+          case 'date-asc':
+          case 'date-desc': {
+            const aVal = new Date(a.querySelector('div:nth-child(7)').textContent).getTime();
+            const bVal = new Date(b.querySelector('div:nth-child(7)').textContent).getTime();
+            return value.endsWith('asc') ? aVal - bVal : bVal - aVal;
+          }
+          case 'name-asc':
+          case 'name-desc': {
+            const aVal = a.querySelector('.name').textContent.toLowerCase();
+            const bVal = b.querySelector('.name').textContent.toLowerCase();
+            return value.endsWith('asc') ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+          }
+          default:
+            return 0;
         }
-        return value.endsWith('asc') ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
       });
       visibleRows.forEach(row => tableBody.appendChild(row));
     }
     searchInput.addEventListener('input', filterAndSort);
 
-    // === Modal ===
-    function openDetailsModal(v) {
-      const content = document.getElementById('details-content');
-      let appealActions = '';
-
-      if (v.appeal !== 'N/A' && v.status.toLowerCase() === 'pending') {
-        appealActions = `
-          <div class="flex justify-end gap-2 mt-4">
-            <form action="/faculty/appeals/${v.id}" method="POST">
-              @csrf @method('PUT')
-              <input type="hidden" name="status" value="approved">
-              <button type="submit" 
-                class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition">
-                ✅ Approve
-              </button>
-            </form>
-            <form action="/faculty/appeals/${v.id}" method="POST">
-              @csrf @method('PUT')
-              <input type="hidden" name="status" value="rejected">
-              <button type="submit" 
-                class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
-                ❌ Reject
-              </button>
-            </form>
-          </div>
-        `;
-      }
-
-      content.innerHTML = `
-        <p><strong>Student No:</strong> ${v.student_no}</p>
-        <p><strong>Name:</strong> ${v.name}</p>
-        <p><strong>Course:</strong> ${v.course}</p>
-        <p><strong>Year Level:</strong> ${v.year_level}</p>
-        <p><strong>Type:</strong> ${v.type}</p>
-        <p><strong>Details:</strong> ${v.details}</p>
-        <p><strong>Date:</strong> ${v.date}</p>
-        <p><strong>Penalty:</strong> ${v.penalty}</p>
-        <p><strong>Status:</strong> ${v.status}</p>
-        <p><strong>Appeal:</strong> ${v.appeal}</p>
-        ${appealActions}
-      `;
-
-      document.getElementById('details-modal').classList.remove('hidden');
+    // === Helpers ===
+    function escapeHtml(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    function statusPill(status) {
+      const s = (status || '').toLowerCase();
+      let cls = 'bg-neutral-100 text-neutral-800';
+      if (s === 'pending') cls = 'bg-amber-100 text-amber-800';
+      if (s === 'approved') cls = 'bg-green-100 text-green-800';
+      if (s === 'rejected') cls = 'bg-red-100 text-red-800';
+      return `<span class="px-2.5 py-1 rounded-full text-xs font-semibold ${cls}">${status}</span>`;
     }
 
+    // === Violation Details Modal ===
+    function openDetailsModalFromBtn(btn) {
+      const v = JSON.parse(btn.dataset.details);
+      openDetailsModal(v);
+    }
+    function openDetailsModal(v) {
+      const content = document.getElementById('details-content');
+      content.innerHTML = `
+        <p><strong>Student No:</strong> ${escapeHtml(v.student_no)}</p>
+        <p><strong>Name:</strong> ${escapeHtml(v.name)}</p>
+        <p><strong>Course:</strong> ${escapeHtml(v.course)}</p>
+        <p><strong>Year Level:</strong> ${escapeHtml(v.year_level)}</p>
+        <p><strong>Type:</strong> ${escapeHtml(v.type)}</p>
+        <p><strong>Details:</strong> ${escapeHtml(v.details)}</p>
+        <p><strong>Date:</strong> ${escapeHtml(v.date)}</p>
+        <p><strong>Penalty:</strong> ${escapeHtml(v.penalty)}</p>
+        <p><strong>Status:</strong> ${escapeHtml(v.status)}</p>
+      `;
+      document.getElementById('details-modal').classList.remove('hidden');
+    }
     function closeDetailsModal() {
       document.getElementById('details-modal').classList.add('hidden');
     }
 
-    // === Flash Message Auto-hide ===
+    // === Appeal Modal ===
+    function openAppealModal(btn) {
+      const v = JSON.parse(btn.dataset.appeal);
+      const content = document.getElementById('appeal-content');
+      const actions = document.getElementById('appeal-actions');
+      const approveForm = document.getElementById('appeal-approve-form');
+      const rejectForm = document.getElementById('appeal-reject-form');
+
+      const hasAppeal = v.appeal && v.appeal !== 'N/A';
+
+      content.innerHTML = `
+        <div class="grid grid-cols-2 gap-3">
+          <p><strong>Student No:</strong> ${escapeHtml(v.student_no)}</p>
+          <p><strong>Name:</strong> ${escapeHtml(v.name)}</p>
+          <p><strong>Course:</strong> ${escapeHtml(v.course)}</p>
+          <p><strong>Year Level:</strong> ${escapeHtml(v.year_level)}</p>
+          <p><strong>Violation:</strong> ${escapeHtml(v.type)}</p>
+          <p><strong>Date:</strong> ${escapeHtml(v.date)}</p>
+        </div>
+
+        <div class="mt-3">
+          <p class="mb-1"><strong>Appeal:</strong></p>
+          <div class="whitespace-pre-wrap bg-neutral-50 border border-neutral-200 rounded-lg p-3">
+            ${hasAppeal ? escapeHtml(v.appeal) : 'N/A'}
+          </div>
+        </div>
+
+        <p class="mt-3"><strong>Status:</strong> ${statusPill(v.appeal_status || 'N/A')}</p>
+      `;
+
+      if (hasAppeal && (v.appeal_status || '').toLowerCase() === 'pending') {
+        actions.classList.remove('hidden');
+        approveForm.action = `/faculty/appeals/${v.appeal_id}`;
+        rejectForm.action  = `/faculty/appeals/${v.appeal_id}`;
+      } else {
+        actions.classList.add('hidden');
+        approveForm.removeAttribute('action');
+        rejectForm.removeAttribute('action');
+      }
+
+      document.getElementById('appeal-modal').classList.remove('hidden');
+    }
+    function closeAppealModal() {
+      document.getElementById('appeal-modal').classList.add('hidden');
+    }
+
+    // Close modals on ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDetailsModal();
+        closeAppealModal();
+      }
+    });
+
+    // Flash Message Auto-hide + icons
     document.addEventListener("DOMContentLoaded", () => {
       const msg = document.getElementById("successMessage");
       if (msg) {

@@ -15,7 +15,7 @@ class ViolationController extends Controller
     public function index()
     {
         // join students and courses for cleaner display
-        $violations = Violation::with(['student', 'course'])->get();
+        $violations = Violation::with(['studentAppeals.appeal', 'student', 'course'])->get();
         return view('violations.violation-entry', compact('violations'));
     }
 

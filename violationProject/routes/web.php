@@ -18,9 +18,8 @@ Route::prefix('faculty')->name('faculty.')->group(function () {
     Route::resource('violations', FacultyViolationController::class);
     Route::resource('appeals', FacultyAppealController::class);
     Route::resource('student-appeals', FacultyStudentAppealController::class);
-
-    Route::put('/faculty/appeals/{violation}', [FacultyAppealController::class, 'update'])
-    ->name('faculty.appeals.update');
+    Route::get('appeals/{id}/review', [FacultyAppealController::class, 'review'])
+     ->name('faculty.appeals.review');
 });
 
 

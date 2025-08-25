@@ -20,16 +20,29 @@ class AppealController extends Controller
         return view('appeals.review', compact('appeal'));
     }
 
-    public function updateStatus(Request $request, $id)
+    public function update(Request $request, $id)
     {
-        $appeal = Appeal::findOrFail($id);
-        $appeal->update(['reviewed_at' => now()]);
-
-        $appeal->studentAppeals()->update([
-            'status' => $request->status,
-            'reviewed_by' => auth()->id() // assuming faculty login
+        $request->validate([
+            'status' => 'required|in:Approved,Rejected',
         ]);
 
-        return redirect()->route('appeals.index')->with('success', 'Appeal reviewed successfully.');
+        $appeal = Appeal::with('studentAppeals.violation')->findOrFail($id);
+
+        foreach ($appeal->studentAppeals as $sa) {
+            $sa->update([
+                'status' => $request->status,
+                'reviewed_by' => auth()->id(),
+                'reviewed_at' => now(),
+            ]);
+
+            if ($request->status === 'Approved') {
+                $sa->violation->update(['status' => 'Cleared']);
+            } else {
+                $sa->violation->update(['status' => 'Disclosed']);
+            }
+        }
+
+        return redirect()->route('faculty.appeals.index')
+            ->with('success', 'Appeal reviewed successfully.');
     }
 }
