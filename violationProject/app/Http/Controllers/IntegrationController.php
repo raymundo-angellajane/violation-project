@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Student;
+use App\Models\Faculty;
 
 class IntegrationController extends Controller
 {
@@ -13,72 +15,71 @@ class IntegrationController extends Controller
      */
     public function showLoginForm()
     {
-        return view('login'); // resources/views/login.blade.php
+        return view('auth.login'); // make sure you have resources/views/auth/login.blade.php
     }
 
     /**
-     * Handle login request for students and faculty
+     * Handle login
      */
     public function loginUser(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required|string',
-            'role' => 'required|in:student,faculty', // Role must be selected
+            'password' => 'required',
+            'role' => 'required|in:student,faculty',
         ]);
 
-        $API_KEY = "pup_JwwWjDvb5PRYWcOEBBuNBJWltRAcu9VQ_1756134718"; 
-        $baseURL = "https://pupt-registration.site";
-        $URI = "/api/auth/login";
-
-        $client = new Client(['base_uri' => $baseURL]);
-
-        try {
-            $response = $client->post($URI, [
-                'json' => [
-                    'email' => $request->email,
-                    'password' => $request->password,
-                ],
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'X-API-Key' => $API_KEY,
-                ],
-            ]);
-
-            $body = json_decode($response->getBody()->getContents());
-
-            if (!isset($body->token)) {
-                return back()->withErrors(['email' => 'Login failed. Check your credentials.']);
+        // Try faculty login
+        if ($request->role === 'faculty') {
+            if (Auth::guard('faculty')->attempt([
+                'email' => $request->email,
+                'password' => $request->password,
+            ])) {
+                $faculty = Auth::guard('faculty')->user();
+                session([
+                    'user_role' => 'faculty',
+                    'user_id' => $faculty->faculty_id,
+                ]);
+                return redirect()->route('faculty.violations.index')
+                                 ->with('success', 'Welcome Faculty!');
             }
-
-            // Store login info in session
-            session([
-                'user_email' => $request->email,
-                'user_token' => $body->token,
-                'user_name'  => $body->first_name ?? '',
-                'user_role'  => $request->role,
-            ]);
-
-            // Redirect based on role
-            if ($request->role === 'student') {
-                return redirect()->route('student.violations.index');
-            } elseif ($request->role === 'faculty') {
-                return redirect()->route('faculty.violations.index');
-            }
-
-        } catch (ClientException $e) {
-            return back()->withErrors(['email' => 'Invalid credentials or API error.']);
-        } catch (\Exception $e) {
-            return back()->withErrors(['email' => 'Something went wrong. Try again later.']);
         }
+
+        // Try student login
+        if ($request->role === 'student') {
+            if (Auth::guard('student')->attempt([
+                'email' => $request->email,
+                'password' => $request->password,
+            ])) {
+                $student = Auth::guard('student')->user();
+                session([
+                    'user_role' => 'student',
+                    'user_id' => $student->student_id,
+                ]);
+                return redirect()->route('student.violations.index')
+                                 ->with('success', 'Welcome Student!');
+            }
+        }
+
+        return back()->withErrors([
+            'login' => 'Login failed. Please check your credentials.',
+        ]);
     }
 
     /**
-     * Logout user
+     * Handle logout
      */
     public function logout(Request $request)
     {
-        $request->session()->flush();
-        return redirect()->route('login');
+        if (Auth::guard('faculty')->check()) {
+            Auth::guard('faculty')->logout();
+        } elseif (Auth::guard('student')->check()) {
+            Auth::guard('student')->logout();
+        }
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->with('success', 'You have been logged out.');
     }
 }

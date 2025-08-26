@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->string('year_level', 20);
             $table->string('email')->unique();
             $table->string('contact_no', 20);
+            $table->string('password'); 
+            $table->rememberToken(); 
             $table->timestamps();
 
             $table->foreign('course_id')

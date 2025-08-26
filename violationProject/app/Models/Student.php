@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Hash;
 
-class Student extends Model
+class Student extends Authenticatable
 {
     use HasFactory;
 
@@ -22,9 +23,28 @@ class Student extends Model
         'year_level',
         'email',
         'contact_no',
+        'password',
     ];
 
-    // Relationships
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Hash password unless it's already hashed.
+     */
+    public function setPasswordAttribute($value)
+    {
+        if (!empty($value)) {
+            $this->attributes['password'] =
+                (strlen($value) === 60 && preg_match('/^\$2y\$/', $value))
+                    ? $value
+                    : Hash::make($value);
+        }
+    }
+
+    /** Relationships */
     public function course()
     {
         return $this->belongsTo(Course::class, 'course_id', 'course_id');
