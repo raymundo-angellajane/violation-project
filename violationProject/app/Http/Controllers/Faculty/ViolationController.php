@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Faculty;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\IntegrationController;
 use App\Models\Violation;
 use App\Models\Student;
 use App\Models\Course;
@@ -43,7 +44,7 @@ class ViolationController extends Controller
             'status'         => 'required|string',
         ]);
 
-        // ✅ Create or find student
+        //  Create or find student
         $student = Student::firstOrCreate(
             ['student_no' => $validated['student_no']],
             [
@@ -56,7 +57,7 @@ class ViolationController extends Controller
             ]
         );
 
-        // ✅ Create violation
+        //  Create violation
         Violation::create([
             'student_id'     => $student->student_id,
             'course_id'      => $validated['course_id'],
