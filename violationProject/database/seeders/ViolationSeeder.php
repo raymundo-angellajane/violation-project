@@ -11,7 +11,7 @@ class ViolationSeeder extends Seeder
     {
         DB::table('violations')->insert([
             'violation_id' => 1,
-            'student_id' => 1, // make sure student with ID=1 exists
+            'student_id' => 1, 
             'description' => 'Wearing improper uniform',
             'status' => 'Pending',
             'created_at' => now(),

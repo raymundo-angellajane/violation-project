@@ -129,7 +129,7 @@
           @empty
             <div class="px-6 py-12 text-center text-neutral-500">
               <i data-lucide="check-circle" class="mx-auto w-12 h-12 mb-3 text-neutral-400"></i>
-              <p class="font-medium">No violations found 🎉</p>
+              <p class="font-medium">No violations found</p>
             </div>
           @endforelse
         </div>

@@ -12,35 +12,47 @@ class StudentAppealController extends Controller
 {
     public function index()
     {
-        //$studentId = Auth::user()->student_id;
+        $student = Auth::guard('student')->user();
 
-        $studentId = 1; 
+        if (!$student) {
+            return redirect()->route('login')->withErrors([
+                'login' => 'You must be logged in as a student to view appeals.'
+            ]);
+        }
 
         $appeals = StudentAppeal::with(['violation', 'appeal'])
-                        ->where('student_id', $studentId)
-                        ->get();
+            ->where('student_id', $student->student_id)
+            ->get();
 
-        return view('student.appeals.index', compact('appeals'));
+        return view('student.appeals.index', compact('appeals', 'student'));
     }
 
     public function create()
     {
-        //$studentId = Auth::user()->student_id;
+        $student = Auth::guard('student')->user();
 
-        $studentId = 1; 
+        if (!$student) {
+            return redirect()->route('login')->withErrors([
+                'login' => 'You must be logged in as a student to submit an appeal.'
+            ]);
+        }
 
-        return view('student.appeals.create');
+        return view('student.appeals.create', compact('student'));
     }
 
     public function store(Request $request)
     {
-        //$studentId = Auth::user()->student_id;
+        $student = Auth::guard('student')->user();
 
-        $studentId = 1; 
+        if (!$student) {
+            return redirect()->route('login')->withErrors([
+                'login' => 'You must be logged in as a student to submit an appeal.'
+            ]);
+        }
 
         $request->validate([
             'violation_id' => 'required|exists:violations,violation_id',
-            'appeal_text'  => 'required',
+            'appeal_text'  => 'required|string',
         ]);
 
         $appeal = Appeal::create([
@@ -50,12 +62,14 @@ class StudentAppealController extends Controller
 
         StudentAppeal::create([
             'student_appeal_id' => uniqid('SAP-'),
-            'student_id'   => $studentId,
+            'student_id'   => $student->student_id,
             'violation_id' => $request->violation_id,
             'appeal_id'    => $appeal->appeal_id,
             'status'       => 'Pending',
         ]);
 
-        return redirect()->route('student.appeals.index')->with('success', 'Appeal submitted successfully.');
+        return redirect()
+            ->route('student.appeals.index')
+            ->with('success', 'Appeal submitted successfully.');
     }
 }

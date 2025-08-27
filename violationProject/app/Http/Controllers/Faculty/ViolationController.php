@@ -87,7 +87,7 @@ class ViolationController extends Controller
     {
         $violation = Violation::findOrFail($id);
 
-        // Prevent changes to status if it's already Cleared
+        // para ma prevent ung changes to status kung cleared na siya
         if ($violation->status === 'Cleared') {
             return redirect()->route('faculty.violations.index')
                             ->with('error', 'This violation is locked because the appeal was approved.');

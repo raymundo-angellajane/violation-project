@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Violation;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,15 +12,17 @@ class ViolationController extends Controller
 {
     public function index()
     {
-         // Temporary for testing
-        $studentId = 1;
+        $student = Auth::guard('student')->user();
 
-        //$studentId = Auth::user()->student_id; 
-        $violations = Violation::with(['course', 'student', 'studentAppeals.appeal','facultyReviewer'])
-                            ->where('student_id', $studentId)
-                            ->get();
+        if (!$student) {
+            return redirect()->route('login')->withErrors([
+                'login' => 'You must be logged in as a student to view violations.'
+            ]);
+        }
 
-        $student = \App\Models\Student::find($studentId);
+        $violations = Violation::with(['course', 'student', 'studentAppeals.appeal', 'facultyReviewer'])
+            ->where('student_id', $student->student_id)
+            ->get();
 
         return view('student.violations', compact('violations', 'student'));
     }
