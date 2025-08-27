@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Support\Facades\Hash;
 
 class Student extends Authenticatable
 {
@@ -15,6 +14,10 @@ class Student extends Authenticatable
     public $incrementing = true;
     protected $keyType = 'int';
 
+    /**
+     * Fillable fields for mass assignment.
+     * Password is optional because login is handled externally.
+     */
     protected $fillable = [
         'student_no',
         'first_name',
@@ -26,13 +29,16 @@ class Student extends Authenticatable
         'password',
     ];
 
+    /**
+     * Hidden fields in serialization.
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
     /**
-     * Hash password unless it's already hashed.
+     * Only hash password if provided (optional).
      */
     public function setPasswordAttribute($value)
     {
@@ -40,21 +46,25 @@ class Student extends Authenticatable
             $this->attributes['password'] =
                 (strlen($value) === 60 && preg_match('/^\$2y\$/', $value))
                     ? $value
-                    : Hash::make($value);
+                    : bcrypt($value); 
         }
     }
 
     /** Relationships */
+
+    // Student belongs to a course
     public function course()
     {
         return $this->belongsTo(Course::class, 'course_id', 'course_id');
     }
 
+    // Student has many violations
     public function violations()
     {
         return $this->hasMany(Violation::class, 'student_id', 'student_id');
     }
 
+    // Student has many appeals
     public function studentAppeals()
     {
         return $this->hasMany(StudentAppeal::class, 'student_id', 'student_id');

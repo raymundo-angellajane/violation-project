@@ -8,8 +8,8 @@ use GuzzleHttp\Exception\ClientException;
 
 class IntegrationController extends Controller
 {
-    private $baseURL = "https://pupt-registration.site";
-    private $API_KEY = "pup_JwwWjDvb5PRYWcOEBBuNBJWltRAcu9VQ_1756134718";
+    private string $baseURL = "https://pupt-registration.site";
+    private string $API_KEY = "pup_JwwWjDvb5PRYWcOEBBuNBJWltRAcu9VQ_1756134718";
 
     /**
      * Show login form
@@ -49,23 +49,39 @@ class IntegrationController extends Controller
                 $data = $body['data'];
                 $user = $data['user'];
 
+                // Normalize role
+                $role = strtolower($user['role'] ?? '');
+                if ($role === 'students') {
+                    $role = 'student';
+                }
+                if ($role === 'faculties') {
+                    $role = 'faculty';
+                }
+
                 // Save details to session
                 session([
                     'user_id'    => $user['id'] ?? null,
                     'user_email' => $user['email'] ?? null,
-                    'user_name'  => ($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''),
-                    'user_role'  => strtolower($user['role'] ?? $request->role),
+                    'user_name'  => trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')),
+                    'user_role'  => $role,
                     'api_token'  => $data['session_token'] ?? null,
                 ]);
 
-                // Redirect based on role
-                if (strtolower($user['role']) === 'faculty') {
+                // Redirect based on normalized role
+                if ($role === 'faculty') {
                     return redirect()->route('faculty.violations.index')
                                      ->with('success', 'Welcome Faculty ' . ($user['first_name'] ?? '') . '!');
-                } else {
+                }
+
+                if ($role === 'student') {
                     return redirect()->route('student.violations.index')
                                      ->with('success', 'Welcome Student ' . ($user['first_name'] ?? '') . '!');
                 }
+
+                // If role is unrecognized
+                return redirect()->route('login')->withErrors([
+                    'login' => 'Unknown role. Please contact administrator.',
+                ]);
             }
 
             return back()->withErrors([

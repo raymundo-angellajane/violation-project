@@ -73,6 +73,15 @@
           <i data-lucide="file-text" class="w-5 h-5"></i>
           Export PDF
         </a>
+      
+        <form action="{{ route('logout') }}" method="POST" class="inline">
+          @csrf
+          <button type="submit"
+            class="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2.5 shadow transition">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+            Logout
+          </button>
+        </form>
       </div>
     </div>
 

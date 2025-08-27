@@ -12,15 +12,26 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string $role)
     {
-        // Check if session exists
+        // Check if session has a user role
         if (!session()->has('user_role')) {
             return redirect()->route('login')->withErrors([
                 'email' => 'Please log in first.'
             ]);
         }
 
-        // Check if role matches
-        if (session('user_role') !== $role) {
+        $sessionRole = strtolower(session('user_role'));
+        $expectedRole = strtolower($role);
+
+        // Normalize common variants
+        if ($sessionRole === 'students') {
+            $sessionRole = 'student';
+        }
+        if ($sessionRole === 'faculties') {
+            $sessionRole = 'faculty';
+        }
+
+        // Role mismatch
+        if ($sessionRole !== $expectedRole) {
             return redirect()->route('login')->withErrors([
                 'email' => 'Unauthorized access for this role.'
             ]);
