@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\StudentAppeal;
 use App\Models\Appeal;
-use App\Models\Student;
 use Illuminate\Http\Request;
 
 class StudentAppealController extends Controller
@@ -18,14 +17,13 @@ class StudentAppealController extends Controller
             ]);
         }
 
-        $studentId = session('user_id');
-        $student = Student::find($studentId);
-
         $appeals = StudentAppeal::with(['violation', 'appeal'])
-            ->where('student_id', $studentId)
+            ->where('student_id', session('user_id'))
             ->get();
 
-        return view('student.appeals.index', compact('appeals', 'student'));
+        $studentName = session('user_name');
+
+        return view('student.appeals.index', compact('appeals', 'studentName'));
     }
 
     public function create()
@@ -36,10 +34,9 @@ class StudentAppealController extends Controller
             ]);
         }
 
-        $studentId = session('user_id');
-        $student = Student::find($studentId);
+        $studentName = session('user_name');
 
-        return view('student.appeals.create', compact('student'));
+        return view('student.appeals.create', compact('studentName'));
     }
 
     public function store(Request $request)
@@ -49,8 +46,6 @@ class StudentAppealController extends Controller
                 'login' => 'You must be logged in as a student to submit an appeal.'
             ]);
         }
-
-        $studentId = session('user_id');
 
         $request->validate([
             'violation_id' => 'required|exists:violations,violation_id',
@@ -64,7 +59,7 @@ class StudentAppealController extends Controller
 
         StudentAppeal::create([
             'student_appeal_id' => uniqid('SAP-'),
-            'student_id'   => $studentId,
+            'student_id'   => session('user_id'),
             'violation_id' => $request->violation_id,
             'appeal_id'    => $appeal->appeal_id,
             'status'       => 'Pending',

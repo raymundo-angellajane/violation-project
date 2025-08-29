@@ -4,11 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>My Violations</title>
-
-  {{-- Tailwind CSS --}}
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-
   <script>
     tailwind.config = {
       theme: {
@@ -30,30 +27,20 @@
       </div>
     @endif
 
-    <!-- Title -->
     <h1 class="text-3xl font-bold tracking-tight mb-6">My Violations</h1>
 
     <!-- Student Info Card -->
     <div class="bg-white rounded-2xl shadow mb-6 border border-neutral-200 flex items-center p-4 gap-4">
       <div class="w-12 h-12 rounded-full bg-brand-700 text-white flex items-center justify-center font-bold">ST</div>
       <div>
-        <p class="text-sm text-neutral-500">Student No.</p>
-        <p class="font-semibold">{{ optional($student)->student_no ?? 'N/A' }}</p>
         <p class="text-sm text-neutral-500">Name</p>
-        <p class="font-semibold">
-          {{ optional($student)->first_name }} {{ optional($student)->last_name }}
-        </p>
-        <p class="text-sm text-neutral-500">Course</p>
-        <p class="font-semibold">
-          {{ optional(optional($student)->course)->course_name ?? 'N/A' }}
-        </p>
+        <p class="font-semibold">{{ $studentName ?? 'N/A' }}</p>
       </div>
     </div>
 
-    <!-- Table -->
+    <!-- Violations Table -->
     <div class="overflow-x-auto rounded-2xl bg-white shadow border border-neutral-200">
       <div class="min-w-[1100px]">
-        <!-- Header -->
         <div class="bg-brand-700 text-white border-b border-neutral-200">
           <div class="grid grid-cols-9 divide-x divide-neutral-300/30 px-6 py-3 text-sm font-semibold">
             <div class="text-center">Violation ID</div>
@@ -68,7 +55,6 @@
           </div>
         </div>
 
-        <!-- Body -->
         <div class="divide-y divide-neutral-200">
           @forelse($violations as $row)
             <div class="grid grid-cols-9 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 odd:bg-neutral-50/40 transition text-sm items-center">
