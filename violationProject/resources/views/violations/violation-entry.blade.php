@@ -121,21 +121,13 @@
               {{-- Appeal column -> opens Appeal Modal --}}
               <div class="text-center">
                 @if($row->studentAppeals->isNotEmpty())
+                  @php $appeal = $row->studentAppeals->first(); @endphp
                   <button
                     type="button"
                     class="text-blue-600 hover:underline"
-                    data-appeal='{!! json_encode([
-                      "violation_id"  => $row->formatted_id,
-                      "student_no"    => $row->student->student_no,
-                      "name"          => $row->student->first_name . " " . $row->student->last_name,
-                      "course"        => $row->course->course_name,
-                      "year_level"    => $row->student->year_level,
-                      "type"          => $row->type,
-                      "date"          => \Carbon\Carbon::parse($row->violation_date)->format("M d, Y"),
-                      "appeal"        => $row->studentAppeals->first()->appeal->appeal_text,
-                      "appeal_id"     => $row->studentAppeals->first()->appeal_id,
-                      "appeal_status" => $row->studentAppeals->first()->status,
-                    ]) !!}'
+                    data-appeal-id="{{ $appeal->appeal_id }}"
+                    data-appeal="{{ $appeal->appeal->appeal_text }}"
+                    data-appeal-status="{{ $appeal->status }}"
                     onclick="openAppealModal(this)">
                     View Appeal
                   </button>
@@ -227,7 +219,7 @@
           <input type="hidden" name="status" value="Approved">
           <button type="submit"
             class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition">
-            ✅ Approve
+            Approve
           </button>
         </form>
         <form id="appeal-reject-form" method="POST">
@@ -236,7 +228,7 @@
           <input type="hidden" name="status" value="Rejected">
           <button type="submit"
             class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
-            ❌ Reject
+            Reject
           </button>
         </form>
       </div>
@@ -354,7 +346,12 @@
 
     // === Appeal Modal ===
     function openAppealModal(btn) {
-      const v = JSON.parse(btn.dataset.appeal);
+      const v = {
+        appeal_id: btn.dataset.appealid,
+        appeal: btn.dataset.appeal,
+        appeal_status: btn.dataset.appealStatus,
+      };
+
       const content = document.getElementById('appeal-content');
       const actions = document.getElementById('appeal-actions');
       const approveForm = document.getElementById('appeal-approve-form');
@@ -362,8 +359,9 @@
 
       const hasAppeal = v.appeal && v.appeal !== 'N/A';
 
+      // Only show Appeal info
       content.innerHTML = `
-        <p><strong>Appeal ID:</strong> ${escapeHtml(v.appeal_id)}</p>
+        <p><strong>Appeal ID:</strong> ${escapeHtml(v.appealid)}</p>
 
         <div class="mt-3">
           <p class="mb-1"><strong>Appeal Message:</strong></p>
@@ -375,10 +373,11 @@
         <p class="mt-3"><strong>Status:</strong> ${statusPill(v.appeal_status || 'N/A')}</p>
       `;
 
+      // Show Approve/Reject only if Pending
       if (hasAppeal && (v.appeal_status || '').toLowerCase() === 'pending') {
         actions.classList.remove('hidden');
-        approveForm.action = `/faculty/appeals/${v.appeal_id}`;
-        rejectForm.action  = `/faculty/appeals/${v.appeal_id}`;
+        approveForm.action = `/faculty/appeals/${v.appealid}`;
+        rejectForm.action  = `/faculty/appeals/${v.appealid}`;
       } else {
         actions.classList.add('hidden');
         approveForm.removeAttribute('action');
@@ -387,6 +386,7 @@
 
       document.getElementById('appeal-modal').classList.remove('hidden');
     }
+
 
     function closeAppealModal() {
       document.getElementById('appeal-modal').classList.add('hidden');

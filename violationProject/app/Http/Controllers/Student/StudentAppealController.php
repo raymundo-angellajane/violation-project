@@ -20,11 +20,19 @@ class StudentAppealController extends Controller
             ]);
         }
 
+        // Get violations data like the ViolationController does
+        $violations = \App\Models\Violation::with(['course', 'student', 'studentAppeals.appeal', 'facultyReviewer'])
+            ->whereHas('student', function($query) use ($userId) {
+                $query->where('student_id', $userId);
+            })
+            ->get();
+
+        $studentName = session('user_name');
         $appeals = StudentAppeal::with(['violation', 'appeal'])
             ->where('student_id', $userId)
             ->get();
 
-        return view('student.violations.index', compact('appeals'));
+        return view('student.violations', compact('violations', 'studentName', 'appeals'));
     }
 
     public function create()
@@ -38,7 +46,7 @@ class StudentAppealController extends Controller
             ]);
         }
 
-        return view('student.appeals.create');
+        return redirect()->route('student.violations.index');
     }
 
     public function store(Request $request)
@@ -71,7 +79,7 @@ class StudentAppealController extends Controller
         ]);
 
         return redirect()
-            ->route('student.appeals.index')
+            ->route('student.violations.index')
             ->with('success', 'Appeal submitted successfully.');
     }
 }
