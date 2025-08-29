@@ -1,33 +1,55 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Appeal Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
 
-@section('content')
-<div class="p-6 max-w-2xl mx-auto">
-    <h2 class="text-2xl font-bold mb-6">Review Appeal #{{ $appeal->appeal_id }}</h2>
+    <div class="max-w-2xl mx-auto px-6 py-8">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="{{ route('faculty.appeals.index') }}" 
+               class="inline-flex items-center gap-2 text-[#7A0000] hover:text-red-800 font-medium">
+                <!-- Left arrow -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" 
+                     viewBox="0 0 24 24" stroke="currentColor">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                           d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Appeals
+            </a>
+        </div>
 
-    <div class="bg-white shadow rounded-lg p-4 mb-6">
-        <p><strong>Student:</strong> 
-            {{ optional($appeal->studentAppeals->first()->student)->name ?? 'N/A' }}
-        </p>
-        <p><strong>Appeal Text:</strong> {{ $appeal->text ?? 'No appeal text provided.' }}</p>
-        <p><strong>Status:</strong> 
-            {{ $appeal->studentAppeals->first()->status ?? 'Pending' }}
-        </p>
+        <!-- Card -->
+        <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-200">
+            <h2 class="text-2xl font-bold text-[#7A0000] mb-4">Appeal #{{ $appeal->appeal_id }}</h2>
+
+            @php
+                $studentAppeal = $appeal->studentAppeals->first();
+                $studentName = $studentAppeal && $studentAppeal->student
+                    ? $studentAppeal->student->first_name . ' ' . $studentAppeal->student->last_name
+                    : 'N/A';
+                $status = $studentAppeal->status ?? 'Pending';
+            @endphp
+
+            <div class="space-y-3">
+                <p><span class="font-semibold">Student:</span> {{ $studentName }}</p>
+                <p><span class="font-semibold">Appeal Message:</span> 
+                    {{ $appeal->appeal_text ?? 'No appeal text provided.' }}
+                </p>
+                <p><span class="font-semibold">Status:</span> 
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold
+                        {{ $status === 'Approved' ? 'bg-green-100 text-green-700' :
+                           ($status === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">
+                        {{ $status }}
+                    </span>
+                </p>
+            </div>
+        </div>
     </div>
 
-    <form action="{{ route('faculty.appeals.update', $appeal->appeal_id) }}" method="POST" class="flex gap-3">
-        @csrf
-        @method('PUT')
-
-        <input type="hidden" name="status" id="status-input" value="">
-
-        <button type="submit" onclick="document.getElementById('status-input').value='Approved'"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-            Approve
-        </button>
-        <button type="submit" onclick="document.getElementById('status-input').value='Rejected'"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-            Reject
-        </button>
-    </form>
-</div>
-@endsection
+</body>
+</html>
