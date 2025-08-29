@@ -14,20 +14,19 @@ class StudentAppealController extends Controller
         $userId = session('user_id');
         $role   = session('user_role');
 
-        if (!$userId || $role !== 'student') {
+        if (!$userId || $role !== 'student') { // para maensure student lang maka access
             return redirect()->route('login')->withErrors([
                 'login' => 'You must be logged in as a student to view appeals.'
             ]);
         }
 
-        // Get violations data like the ViolationController does
         $violations = \App\Models\Violation::with(['course', 'student', 'studentAppeals.appeal', 'facultyReviewer'])
-            ->whereHas('student', function($query) use ($userId) {
+            ->whereHas('student', function($query) use ($userId) { // para ma filter ang violations sa student lang
                 $query->where('student_id', $userId);
             })
             ->get();
 
-        $studentName = session('user_name');
+        $studentName = session('user_name'); // kkunin sa session ang name
         $appeals = StudentAppeal::with(['violation', 'appeal'])
             ->where('student_id', $userId)
             ->get();

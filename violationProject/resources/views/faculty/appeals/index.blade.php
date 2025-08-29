@@ -8,7 +8,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
 
-    <!-- Header with Back -->
+    <!-- Header -->
     <div class="max-w-6xl mx-auto px-6 py-6">
         <div class="flex items-center justify-between mb-4">
             <!-- Back Button -->

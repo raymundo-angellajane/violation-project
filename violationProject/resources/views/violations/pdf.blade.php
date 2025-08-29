@@ -89,7 +89,6 @@
         </table>
     </div>
 
-    <!-- Footer -->
     <div class="footer">
         <p>Violation Report - Polytechnic University of the Philippines (Taguig Campus)</p>
     </div>

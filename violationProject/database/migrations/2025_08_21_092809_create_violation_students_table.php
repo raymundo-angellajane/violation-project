@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('violation_students', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('student_id')->nullable(); // replace later with foreign key
+            $table->unsignedBigInteger('student_id')->nullable(); 
             $table->string('type');
             $table->text('details');
             $table->date('date');

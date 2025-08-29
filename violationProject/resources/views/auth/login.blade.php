@@ -48,7 +48,6 @@
     </div>
 
     <style>
-        /* Define custom maroon color */
         .text-maroon-700 { color: #800000; }
         .bg-maroon-700 { background-color: #800000; }
         .hover\:bg-maroon-800:hover { background-color: #660000; }

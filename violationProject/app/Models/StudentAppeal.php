@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class StudentAppeal extends Model
+class StudentAppeal extends Model // ito ung model for student appeals na magre-relate sa student, violation, appeal, at faculty reviewer
 {
     use HasFactory;
 
@@ -23,7 +23,6 @@ class StudentAppeal extends Model
         'reviewed_by',
     ];
 
-    // Relationships
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id', 'student_id');

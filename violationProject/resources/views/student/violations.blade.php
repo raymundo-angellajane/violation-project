@@ -21,7 +21,6 @@
 <body class="bg-neutral-50 text-neutral-800 antialiased">
   <div class="max-w-[1200px] mx-auto px-6 py-10">
 
-    <!-- Top Bar -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-3xl font-bold tracking-tight text-brand-700">My Violations</h1>
       <form action="{{ route('logout') }}" method="POST">
@@ -216,9 +215,9 @@
     function closeViewAppealModal() { document.getElementById('viewAppealModal').classList.add('hidden'); }
 
     document.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons(); // ✅ render icons
+      lucide.createIcons(); 
 
-      // Flash message auto-hide
+      // Flash message na nag o auto disappear after 3 seconds
       const msg = document.getElementById("successMessage");
       if (msg) setTimeout(() => { 
         msg.classList.add("opacity-0","transition","duration-700"); 

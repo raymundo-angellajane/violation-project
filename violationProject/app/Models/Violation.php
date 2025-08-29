@@ -26,7 +26,6 @@ class Violation extends Model
         'reviewed_by'
     ];
 
-    // Relationships
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id', 'student_id');
@@ -47,8 +46,8 @@ class Violation extends Model
         return $this->hasMany(StudentAppeal::class, 'violation_id', 'violation_id');
     }
 
-    // Helper to display formatted violation ID
-    public function getFormattedIdAttribute()
+    public function getFormattedIdAttribute() // ito naman is ginawa para sa formatted violation ID
+    // example: VIO-0001
     {
         return 'VIO-' . str_pad($this->violation_id, 4, '0', STR_PAD_LEFT);
     }

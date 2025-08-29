@@ -11,26 +11,24 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ViolationController extends Controller
 {
-    // Show all violations
+    // to show ano yung laman ng violations table
     public function index()
     {
         $violations = Violation::with(['studentAppeals.appeal', 'student', 'course'])->get();
         return view('violations.violation-entry', compact('violations'));
     }
 
-    // Show create form
-    public function create()
+    public function create() // para ka mag add ng violation
     {
         $students = Student::all();
         $courses = Course::all();
         return view('violations.create', compact('students', 'courses'));
     }
 
-    // Store new violation
-    public function store(Request $request)
+    public function store(Request $request) // para ma save yung violation
     {
         $validated = $request->validate([
-            'student_id'      => 'nullable|exists:students,student_id',
+            'student_id'      => 'nullable|exists:students,student_id', // pipili ka kung existing student or manual entry
             'student_no'      => 'nullable|string|max:50',
             'first_name'      => 'nullable|string|max:100',
             'last_name'       => 'nullable|string|max:100',
@@ -43,12 +41,10 @@ class ViolationController extends Controller
             'status'          => 'nullable|in:Pending,Disclosed',
         ]);
 
-        // Case 1: Select existing student
-        if ($validated['student_id']) {
+        if ($validated['student_id']) { // para to check kung existing student ba
             $student = Student::findOrFail($validated['student_id']);
         } 
-        // Case 2: Manual entry (create or update student)
-        else {
+        else { // kung manual entry naman
             $student = Student::firstOrCreate(
                 ['student_no' => $validated['student_no']],
                 [
@@ -60,11 +56,10 @@ class ViolationController extends Controller
             );
         }
 
-        // Create violation
-        Violation::create([
+        Violation::create([ // para mag create ng violation
             'student_id'     => $student->student_id,
             'course_id'      => $validated['course_id'],
-            'year_level'     => $student->year_level ?? $validated['year_level'] ?? 'N/A',
+            'year_level'     => $student->year_level ?? $validated['year_level'] ?? 'N/A', // kung wala sa student table yung year level, gagamitin yung galing sa form, kung wala din dun, 'N/A' na lang
             'type'           => $validated['type'],
             'violation_date' => $validated['violation_date'],
             'details'        => $validated['details'] ?? null,
@@ -72,13 +67,12 @@ class ViolationController extends Controller
             'status'         => $validated['status'] ?? 'Pending',
         ]);
 
-        return redirect()
+        return redirect() // para mag redirect sa index page
             ->route('faculty.violations.index')
             ->with('success', 'Violation added successfully.');
     }
 
-    // Edit form
-    public function edit($id)
+    public function edit($id) // edit yan
     {
         $violation = Violation::with(['student', 'course'])->findOrFail($id);
         $courses = Course::all();
@@ -86,8 +80,7 @@ class ViolationController extends Controller
         return view('violations.edit', compact('violation', 'courses', 'students'));
     }
 
-    // Update violation
-    public function update(Request $request, $id)
+    public function update(Request $request, $id) // update ka ning violation
     {
         $violation = Violation::findOrFail($id);
 
@@ -105,12 +98,10 @@ class ViolationController extends Controller
             'status'          => 'nullable|in:Pending,Disclosed',
         ]);
 
-        // Case 1: Existing student
-        if ($validated['student_id']) {
+        if ($validated['student_id']) {// ito ulit magccheck kung existing student ba
             $student = Student::findOrFail($validated['student_id']);
         } 
-        // Case 2: Manual entry
-        else {
+        else { // o kung manual mo nilagay
             $student = Student::firstOrCreate(
                 ['student_no' => $validated['student_no']],
                 [
@@ -122,7 +113,6 @@ class ViolationController extends Controller
             );
         }
 
-        // Update violation
         $violation->update([
             'student_id'     => $student->student_id,
             'course_id'      => $validated['course_id'],
@@ -139,22 +129,19 @@ class ViolationController extends Controller
             ->with('success', 'Violation updated successfully.');
     }
 
-
-    // Delete
-    public function destroy($id)
+    public function destroy($id) // basta pag destroy, delete na
     {
         Violation::findOrFail($id)->delete();
         return redirect()->route('faculty.violations.index')->with('success', 'Violation deleted successfully!');
     }
 
-    // Export PDF
-    public function exportPdf()
+    public function exportPdf() // para ma export sa pdf
     {
         $violations = Violation::with(['student', 'course'])->get();
 
         $pdf = Pdf::loadView('violations.pdf', compact('violations'))
                   ->setPaper('a4', 'landscape');
 
-        return $pdf->download('violations_report.pdf');
+        return $pdf->download('violations_report.pdf'); // para ma download
     }
 }

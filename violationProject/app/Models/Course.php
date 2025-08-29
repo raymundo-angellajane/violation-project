@@ -19,7 +19,7 @@ class Course extends Model
         'course_code',
     ];
 
-    // Relationships
+    // yung mga yan is relationships ng model na to. kumbaga e connections nya sa ibang models
     public function students()
     {
         return $this->hasMany(Student::class, 'course_id', 'course_id');

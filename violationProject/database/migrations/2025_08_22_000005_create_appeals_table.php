@@ -8,9 +8,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('appeals', function (Blueprint $table) {
-            $table->string('appeal_id')->primary(); // string ID
+            $table->string('appeal_id')->primary(); 
             $table->text('appeal_text');
-            $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending'); // ✅ status added
+            $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending'); 
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();
         });

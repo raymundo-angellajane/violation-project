@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Violation;
 use Illuminate\Http\Request;
 
-class ViolationController extends Controller
+class ViolationController extends Controller // ung controller naman na to is para sa pag view ng violations
 {
     public function index()
     {

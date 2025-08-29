@@ -15,15 +15,15 @@ class StudentController extends Controller
         return view('students.index', compact('students'));
     }
 
-    public function create()
+    public function create() // form para mag-add ng student
     {
         $courses = Course::all();
-        return view('students.create', compact('courses'));
+        return view('students.create', compact('courses')); // para makuha yung courses sa dropdown
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $request->validate([ // validation rules
             'student_no' => 'required|unique:students',
             'first_name' => 'required',
             'last_name'  => 'required',
@@ -33,12 +33,12 @@ class StudentController extends Controller
             'contact_no' => 'required',
         ]);
 
-        Student::create($request->all());
+        Student::create($request->all()); // para ma-save sa database
 
         return redirect()->route('students.index')->with('success', 'Student added successfully.');
     }
 
-    public function edit($id)
+    public function edit($id) // malamang form para mag-edit ng student
     {
         $student = Student::findOrFail($id);
         $courses = Course::all();
@@ -47,7 +47,7 @@ class StudentController extends Controller
 
     public function update(Request $request, $id)
     {
-        $student = Student::findOrFail($id);
+        $student = Student::findOrFail($id); // para mahanap yung student
 
         $request->validate([
             'student_no' => 'required|unique:students,student_no,' . $student->student_id . ',student_id',
@@ -56,7 +56,7 @@ class StudentController extends Controller
             'course_id'  => 'required|exists:courses,course_id',
             'year_level' => 'required',
             'email'      => 'required|email|unique:students,email,' . $student->student_id . ',student_id',
-            'contact_no' => 'required',
+            'contact_no' => 'required', 
         ]);
 
         $student->update($request->all());
@@ -64,7 +64,7 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Student updated successfully.');
     }
 
-    public function destroy($id)
+    public function destroy($id) // para mag-delete ng student
     {
         Student::findOrFail($id)->delete();
         return redirect()->route('students.index')->with('success', 'Student deleted successfully.');

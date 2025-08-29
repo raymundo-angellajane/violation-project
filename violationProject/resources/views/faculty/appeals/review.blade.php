@@ -9,12 +9,11 @@
 <body class="bg-gray-50 text-gray-800 font-sans">
 
     <div class="max-w-2xl mx-auto px-6 py-8">
-        <!-- Back Button -->
         <div class="mb-6">
             <a href="{{ route('faculty.appeals.index') }}" 
                class="inline-flex items-center gap-2 text-[#7A0000] hover:text-red-800 font-medium">
-                <!-- Left arrow -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" 
+
+               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" 
                      viewBox="0 0 24 24" stroke="currentColor">
                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                            d="M15 19l-7-7 7-7" />
@@ -23,7 +22,6 @@
             </a>
         </div>
 
-        <!-- Card -->
         <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-200">
             <h2 class="text-2xl font-bold text-[#7A0000] mb-4">Appeal #{{ $appeal->appeal_id }}</h2>
 

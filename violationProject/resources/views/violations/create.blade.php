@@ -79,7 +79,7 @@
           <select name="year_level" id="year_level" required
                   class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000]">
             <option value="">-- Select Year Level --</option>
-            @foreach(['1st', '2nd', '3rd', '4th'] as $year)
+            @foreach(['1st Year', '2nd Year', '3rd Year', '4th Year'] as $year)
               <option value="{{ $year }}" {{ old('year_level') == $year ? 'selected' : '' }}>
                 {{ $year }}
               </option>

@@ -30,18 +30,16 @@ class Student extends Authenticatable
         'remember_token',
     ];
 
-    // Hash password if set
     public function setPasswordAttribute($value)
     {
         if (!empty($value)) {
             $this->attributes['password'] =
-                (strlen($value) === 60 && preg_match('/^\$2y\$/', $value))
+                (strlen($value) === 60 && preg_match('/^\$2y\$/', $value)) // tas ayan mga conditions to check if the password is already hashed
                     ? $value
-                    : bcrypt($value);
+                    : bcrypt($value); // yung bcrypt is laravel's built-in hashing function
         }
     }
 
-    /** Relationships */
     public function course()
     {
         return $this->belongsTo(Course::class, 'course_id', 'course_id');

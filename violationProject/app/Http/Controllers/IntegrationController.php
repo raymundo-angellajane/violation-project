@@ -13,54 +13,46 @@ class IntegrationController extends Controller
     private string $baseURL = "https://pupt-registration.site";
     private string $API_KEY = "pup_JwwWjDvb5PRYWcOEBBuNBJWltRAcu9VQ_1756134718";
 
-    /**
-     * Show login form
-     */
-    public function showLoginForm()
+    public function showLoginForm() // para magpakita naman to ng login form ni faculty/student
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle login
-     */
-    public function loginUser(Request $request)
+    public function loginUser(Request $request) // para maglogin naman to ng faculty/student
     {
         $request->validate([
             'email'    => 'required|email',
             'password' => 'required',
         ]);
 
-        $client = new Client(['base_uri' => $this->baseURL]);
+        $client = new Client(['base_uri' => $this->baseURL]); // si guzzle client, yan yung ginagamit para magrequest sa external API 
 
-        try {
+        try { // this is to ano kung may error sa pagrequest sa external API
             $response = $client->post('/api/auth/login', [
-                'json' => [
+                'json' => [ // yung body ng request
                     'email'    => $request->email,
                     'password' => $request->password,
                 ],
                 'headers' => [
-                    'Content-Type' => 'application/json',
-                    'X-API-Key'    => $this->API_KEY,
+                    'Content-Type' => 'application/json', // type ng content na pinapadala
+                    'X-API-Key'    => $this->API_KEY, // yung API key na binigay sa atin ng external API
                 ]
             ]);
 
-            $body = json_decode($response->getBody(), true);
+            $body = json_decode($response->getBody(), true); // para ma-decode yung response body na galing sa external API
 
             if (isset($body['success']) && $body['success'] === true) {
                 $data = $body['data'];
                 $user = $data['user'];
 
-                // Normalize role
-                $role = strtolower($user['role'] ?? '');
+                $role = strtolower($user['role'] ?? ''); // to lowercase yung role para consistent
                 if ($role === 'students') $role = 'student';
                 if ($role === 'faculties') $role = 'faculty';
 
-                $student = null;
+                $student = null; // initialize student and faculty variables into null
                 $faculty = null;
 
-                if ($role === 'student') {
-                    // Generate formatted student_id
+                if ($role === 'student') { // para sa paghandle ng student
                     $student = Student::firstOrCreate(
                         ['email' => $user['email']],
                         [
@@ -75,8 +67,7 @@ class IntegrationController extends Controller
                     );
                 }
 
-                if ($role === 'faculty') {
-                    // Generate formatted faculty_id
+                if ($role === 'faculty') { // para mag generate ng faculty
                     $faculty = Faculty::firstOrCreate(
                         ['email' => $user['email']],
                         [
@@ -87,29 +78,27 @@ class IntegrationController extends Controller
                     );
                 }
 
-                // Save details to session
-                session([
+                session([ // para magstore ng session data
                     'user_id'    => $role === 'student' ? $student->student_id : ($faculty->faculty_id ?? null),
                     'user_email' => $user['email'] ?? null,
                     'user_name'  => trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')),
                     'user_role'  => $role,
                     'api_token'  => $data['session_token'] ?? null,
 
-                    // Extra fields for students
                     'student_no' => $student->student_no ?? null,
                     'course_id'  => $student->course_id ?? null,
                     'year_level' => $student->year_level ?? null,
                 ]);
 
-                // Redirect based on role
+                // redirect sya sa appropriate dashboard based on role
                 if ($role === 'faculty') {
                     return redirect()->route('faculty.violations.index')
-                                     ->with('success', 'Welcome Faculty ' . ($user['first_name'] ?? '') . '!');
+                                     ->with('success', 'Welcome, Faculty ' . ($user['first_name'] ?? '') . '!');
                 }
 
                 if ($role === 'student') {
                     return redirect()->route('student.violations.index')
-                                     ->with('success', 'Welcome Student ' . ($user['first_name'] ?? '') . '!');
+                                     ->with('success', 'Welcome, Student ' . ($user['first_name'] ?? '') . '!');
                 }
 
                 return redirect()->route('login')->withErrors([
@@ -121,7 +110,7 @@ class IntegrationController extends Controller
                 'login' => 'Invalid credentials. Please try again.',
             ]);
 
-        } catch (ClientException $e) {
+        } catch (ClientException $e) { // yung catch naman e to is para maghandle ng mga error na galing sa external API
             return back()->withErrors([
                 'login' => 'Login failed. Please check your credentials.',
                 'error_detail' => $e->getMessage(),
@@ -129,9 +118,7 @@ class IntegrationController extends Controller
         }
     }
 
-    /**
-     * Handle logout
-     */
+    // para maglogout naman to ng faculty/student
     public function logout(Request $request)
     {
         $request->session()->invalidate();

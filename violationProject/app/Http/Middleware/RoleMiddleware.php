@@ -5,16 +5,13 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class RoleMiddleware
+class RoleMiddleware // ung middleware na to is para ma handle ung role based access
+// example kung student lang dapat maka access sa student routes diba
 {
-    /**
-     * Handle an incoming request.
-     */
-    public function handle(Request $request, Closure $next, string $role)
+    public function handle(Request $request, Closure $next, string $role) // yung role is galing sa route definition
     {
-        // Check if session has a user role
-        if (!session()->has('user_role')) {
-            return redirect()->route('login')->withErrors([
+        if (!session()->has('user_role')) { 
+            return redirect()->route('login')->withErrors([ // kung wala pang session ng role ibig sabihin hindi pa logged in
                 'email' => 'Please log in first.'
             ]);
         }
@@ -22,7 +19,6 @@ class RoleMiddleware
         $sessionRole = strtolower(session('user_role'));
         $expectedRole = strtolower($role);
 
-        // Normalize common variants
         if ($sessionRole === 'students') {
             $sessionRole = 'student';
         }
@@ -30,8 +26,7 @@ class RoleMiddleware
             $sessionRole = 'faculty';
         }
 
-        // Role mismatch
-        if ($sessionRole !== $expectedRole) {
+        if ($sessionRole !== $expectedRole) { // if magmismatch yung role sa session at sa expected role
             return redirect()->route('login')->withErrors([
                 'email' => 'Unauthorized access for this role.'
             ]);

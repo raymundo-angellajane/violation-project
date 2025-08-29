@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Foundation\Auth\User as Authenticatable; // kaya ginamit to kasi gagamitin natin to for authentication
 use Illuminate\Support\Facades\Hash;
 
 class Faculty extends Authenticatable
@@ -28,7 +28,7 @@ class Faculty extends Authenticatable
         'remember_token',
     ];
 
-    // Automatically hash password
+    // ito ung magse-set ng password, kung di pa hashed, ie-hash nya
     public function setPasswordAttribute($value)
     {
         if (!empty($value)) {
@@ -39,7 +39,6 @@ class Faculty extends Authenticatable
         }
     }
 
-    /** Relationships */
     public function reviewedViolations()
     {
         return $this->hasMany(Violation::class, 'reviewed_by', 'faculty_id');
