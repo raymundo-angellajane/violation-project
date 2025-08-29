@@ -20,14 +20,24 @@
 <body class="bg-neutral-50 text-neutral-800 antialiased">
   <div class="max-w-[1200px] mx-auto px-6 py-10">
 
+    <!-- Header with Logout -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold tracking-tight">My Violations</h1>
+      <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit" 
+                class="px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-700/90">
+          Logout
+        </button>
+      </form>
+    </div>
+
     <!-- Flash Message -->
     @if(session('success'))
       <div id="successMessage" class="mb-4 rounded-lg bg-green-100 border border-green-300 text-green-800 px-4 py-3">
         {{ session('success') }}
       </div>
     @endif
-
-    <h1 class="text-3xl font-bold tracking-tight mb-6">My Violations</h1>
 
     <!-- Student Info Card -->
     <div class="bg-white rounded-2xl shadow mb-6 border border-neutral-200 flex items-center p-4 gap-4">
