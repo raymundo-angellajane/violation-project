@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Violation;
 use App\Models\Student;
 use App\Models\Course;
+use App\Models\YearLevel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ViolationController extends Controller
@@ -14,16 +15,18 @@ class ViolationController extends Controller
     // Show all violations
     public function index()
     {
-        $violations = Violation::with(['studentAppeals.appeal', 'student', 'course'])->get();
+        $violations = Violation::with(['studentAppeals.appeal', 'student', 'course', 'student.yearLevel'])->get();
         return view('violations.violation-entry', compact('violations'));
     }
 
     // Show create form
     public function create()
     {
-        $students = Student::all();
+        //$students = Student::all();
+        $students = Student::with(['course', 'yearLevel'])->get();
         $courses = Course::all();
-        return view('violations.create', compact('students', 'courses'));
+        $year_levels = YearLevel::all(); // dinagdag ko ung year_levels
+        return view('violations.create', compact('students', 'courses', 'year_levels'));
     }
 
     // Store new violation
@@ -35,7 +38,7 @@ class ViolationController extends Controller
             'first_name'      => 'nullable|string|max:100',
             'last_name'       => 'nullable|string|max:100',
             'course_id'       => 'required|exists:courses,course_id',
-            'year_level'      => 'nullable|string|max:20',
+            'year_level_id'      => 'nullable|string|max:20',
             'type'            => 'required|in:Minor,Major',
             'violation_date'  => 'required|date',
             'details'         => 'nullable|string',
@@ -55,7 +58,7 @@ class ViolationController extends Controller
                     'first_name' => $validated['first_name'],
                     'last_name'  => $validated['last_name'],
                     'course_id'  => $validated['course_id'],
-                    'year_level' => $validated['year_level'],
+                    'year_level_id' => $validated['year_level'],
                 ]
             );
         }
@@ -64,7 +67,7 @@ class ViolationController extends Controller
         Violation::create([
             'student_id'     => $student->student_id,
             'course_id'      => $validated['course_id'],
-            'year_level'     => $student->year_level ?? $validated['year_level'] ?? 'N/A',
+            'year_level_id'     => $student->year_level ?? $validated['year_level'] ?? 'N/A',
             'type'           => $validated['type'],
             'violation_date' => $validated['violation_date'],
             'details'        => $validated['details'] ?? null,
@@ -80,10 +83,11 @@ class ViolationController extends Controller
     // Edit form
     public function edit($id)
     {
-        $violation = Violation::with(['student', 'course'])->findOrFail($id);
+        $violation = Violation::with(['student', 'course', 'yearLevel'])->findOrFail($id);
         $courses = Course::all();
         $students  = Student::all();
-        return view('violations.edit', compact('violation', 'courses', 'students'));
+        $year_levels = YearLevel::all(); // dinagdag ko ung year_levels
+        return view('violations.edit', compact('violation', 'courses', 'students', 'year_levels'));
     }
 
     // Update violation
