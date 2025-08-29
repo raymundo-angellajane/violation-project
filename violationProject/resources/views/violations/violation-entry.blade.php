@@ -112,7 +112,7 @@
               <div class="text-center student-no">{{ $row->student->student_no }}</div>
               <div class="text-center name">{{ $row->student->first_name }} {{ $row->student->last_name }}</div>
               <div class="text-center">{{ $row->course->course_name }}</div>
-              <div class="text-center">{{ $row->student->year_level }}</div>
+              <div class="text-center">{{ $row->student->yearLevel->year_name ?? 'N/A' }}</div>
               <div class="text-center">{{ $row->type }}</div>
               <div class="text-center">{{ $row->details ?? 'N/A' }}</div>
               <div class="text-center">{{ \Carbon\Carbon::parse($row->violation_date)->format('M d, Y') }}</div>
