@@ -19,7 +19,7 @@ class Student extends Authenticatable
         'first_name',
         'last_name',
         'course_id',
-        'year_level',
+        'year_level_id',
         'email',
         'contact_no',
         'password',
@@ -56,4 +56,10 @@ class Student extends Authenticatable
     {
         return $this->hasMany(StudentAppeal::class, 'student_id', 'student_id');
     }
+
+    public function yearLevel()
+    {
+        return $this->belongsTo(YearLevel::class, 'year_level_id', 'year_level_id');
+    }
+
 }
