@@ -82,7 +82,8 @@ class ViolationController extends Controller
     {
         $violation = Violation::with(['student', 'course'])->findOrFail($id);
         $courses = Course::all();
-        return view('violations.edit', compact('violation', 'courses'));
+        $students  = Student::all();
+        return view('violations.edit', compact('violation', 'courses', 'students'));
     }
 
     // Update violation
