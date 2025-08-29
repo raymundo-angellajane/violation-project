@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use App\Models\Student;
+use App\Models\Faculty;
 
 class IntegrationController extends Controller
 {
@@ -56,42 +57,48 @@ class IntegrationController extends Controller
                 if ($role === 'faculties') $role = 'faculty';
 
                 $student = null;
+                $faculty = null;
 
                 if ($role === 'student') {
-                    // Always ensure student_no exists
-                    $studentNo = $user['student_no'] ?? ('SN-' . strtoupper(uniqid()));
-
+                    // Generate formatted student_id
                     $student = Student::firstOrCreate(
                         ['email' => $user['email']],
                         [
+                            'student_id' => 'STU-' . strtoupper(uniqid()),
+                            'student_no' => $user['student_no'] ?? ('SN-' . strtoupper(uniqid())),
                             'first_name' => $user['first_name'] ?? '',
                             'last_name'  => $user['last_name'] ?? '',
-                            'student_no' => $studentNo,
                             'course_id'  => $user['course_id'] ?? null,
                             'year_level' => $user['year_level'] ?? null,
                             'contact_no' => $user['contact_no'] ?? null,
                         ]
                     );
+                }
 
-                    // If existing record had no student_no, update it
-                    if (empty($student->student_no)) {
-                        $student->student_no = $studentNo;
-                        $student->save();
-                    }
+                if ($role === 'faculty') {
+                    // Generate formatted faculty_id
+                    $faculty = Faculty::firstOrCreate(
+                        ['email' => $user['email']],
+                        [
+                            'faculty_id' => 'FAC-' . strtoupper(uniqid()),
+                            'first_name' => $user['first_name'] ?? '',
+                            'last_name'  => $user['last_name'] ?? '',
+                        ]
+                    );
                 }
 
                 // Save details to session
                 session([
-                    'user_id'     => $role === 'student' ? $student->student_id : ($user['id'] ?? null),
-                    'user_email'  => $user['email'] ?? null,
-                    'user_name'   => trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')),
-                    'user_role'   => $role,
-                    'api_token'   => $data['session_token'] ?? null,
+                    'user_id'    => $role === 'student' ? $student->student_id : ($faculty->faculty_id ?? null),
+                    'user_email' => $user['email'] ?? null,
+                    'user_name'  => trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')),
+                    'user_role'  => $role,
+                    'api_token'  => $data['session_token'] ?? null,
 
                     // Extra fields for students
-                    'student_no'   => $student->student_no ?? null,
-                    'course_id'    => $student->course_id ?? null,
-                    'year_level'   => $student->year_level ?? null,
+                    'student_no' => $student->student_no ?? null,
+                    'course_id'  => $student->course_id ?? null,
+                    'year_level' => $student->year_level ?? null,
                 ]);
 
                 // Redirect based on role

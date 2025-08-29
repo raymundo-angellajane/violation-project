@@ -10,14 +10,7 @@ class AppealController extends Controller
 {
     public function index()
     {
-        $userId = session('user_id');
-        $role   = session('user_role');
-
-        if (!$userId || $role !== 'faculty') {
-            return redirect()->route('login')->withErrors([
-                'login' => 'You must be logged in as faculty to view appeals.'
-            ]);
-        }
+        $this->checkFaculty();
 
         $appeals = Appeal::with('studentAppeals.student')->get();
 
@@ -29,14 +22,7 @@ class AppealController extends Controller
 
     public function review($id)
     {
-        $userId = session('user_id');
-        $role   = session('user_role');
-
-        if (!$userId || $role !== 'faculty') {
-            return redirect()->route('login')->withErrors([
-                'login' => 'You must be logged in as faculty to review appeals.'
-            ]);
-        }
+        $this->checkFaculty();
 
         $appeal = Appeal::with('studentAppeals.student', 'studentAppeals.violation')
             ->findOrFail($id);
@@ -49,14 +35,7 @@ class AppealController extends Controller
 
     public function update(Request $request, $id)
     {
-        $userId = session('user_id');
-        $role   = session('user_role');
-
-        if (!$userId || $role !== 'faculty') {
-            return redirect()->route('login')->withErrors([
-                'login' => 'You must be logged in as faculty to update appeals.'
-            ]);
-        }
+        $this->checkFaculty();
 
         $request->validate([
             'status' => 'required|in:Approved,Rejected',
@@ -66,9 +45,9 @@ class AppealController extends Controller
 
         foreach ($appeal->studentAppeals as $sa) {
             $sa->update([
-                'status'       => $request->status,
-                'reviewed_by'  => $userId,
-                'reviewed_at'  => now(),
+                'status'      => $request->status,
+                'reviewed_by' => session('user_id'), // FAC-xxxx
+                'reviewed_at' => now(),
             ]);
 
             if ($sa->violation) {
@@ -84,21 +63,14 @@ class AppealController extends Controller
 
     public function approve($id)
     {
-        $userId = session('user_id');
-        $role   = session('user_role');
-
-        if (!$userId || $role !== 'faculty') {
-            return redirect()->route('login')->withErrors([
-                'login' => 'You must be logged in as faculty to approve appeals.'
-            ]);
-        }
+        $this->checkFaculty();
 
         $appeal = Appeal::with('studentAppeals.violation')->findOrFail($id);
 
         foreach ($appeal->studentAppeals as $sa) {
             $sa->update([
                 'status'      => 'Approved',
-                'reviewed_by' => $userId,
+                'reviewed_by' => session('user_id'), // FAC-xxxx
                 'reviewed_at' => now(),
             ]);
 
@@ -111,5 +83,13 @@ class AppealController extends Controller
 
         return redirect()->back()->with('success', 'Appeal approved and violation cleared.');
     }
-}
 
+    private function checkFaculty()
+    {
+        if (!session('user_id') || session('user_role') !== 'faculty') {
+            return redirect()->route('login')->withErrors([
+                'login' => 'You must be logged in as faculty.',
+            ]);
+        }
+    }
+}
