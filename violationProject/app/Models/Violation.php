@@ -36,20 +36,20 @@ class Violation extends Model
     {
         return $this->belongsTo(Faculty::class, 'reviewed_by', 'faculty_id');
     }
-    
+
     public function course()
     {
         return $this->belongsTo(Course::class, 'course_id', 'course_id');
     }
-    
+
     public function studentAppeals()
-        {
-    return $this->hasMany(StudentAppeal::class, 'violation_id', 'violation_id');
+    {
+        return $this->hasMany(StudentAppeal::class, 'violation_id', 'violation_id');
     }
 
+    // Helper to display formatted violation ID
     public function getFormattedIdAttribute()
     {
         return 'VIO-' . str_pad($this->violation_id, 4, '0', STR_PAD_LEFT);
     }
-
 }

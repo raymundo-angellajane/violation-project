@@ -30,3 +30,4 @@ class ViolationStudent extends Model
         return 'V-' . now()->year . '-' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
     }
 }
+

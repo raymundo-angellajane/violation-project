@@ -21,7 +21,9 @@ Route::prefix('student')
     ->middleware(['role:student'])
     ->group(function () {
         Route::get('violations', [StudentViolationController::class, 'index'])->name('violations.index');
+
         Route::get('appeals', [StudentAppealController::class, 'index'])->name('appeals.index');
+        Route::get('appeals/create', [StudentAppealController::class, 'create'])->name('appeals.create');
         Route::post('appeals', [StudentAppealController::class, 'store'])->name('appeals.store');
     });
 
@@ -31,12 +33,16 @@ Route::prefix('faculty')
     ->middleware(['role:faculty'])
     ->group(function () {
         Route::get('violations/export-pdf', [FacultyViolationController::class, 'exportPdf'])->name('violations.exportPdf');
+
         Route::resource('students', FacultyStudentController::class);
         Route::resource('courses', FacultyCourseController::class);
         Route::resource('violations', FacultyViolationController::class);
-        Route::resource('appeals', FacultyAppealController::class);
-        Route::resource('student-appeals', FacultyStudentAppealController::class);
+
+        // Put review BEFORE resource to avoid conflicts
         Route::get('appeals/{id}/review', [FacultyAppealController::class, 'review'])->name('appeals.review');
+        Route::resource('appeals', FacultyAppealController::class);
+
+        Route::resource('student-appeals', FacultyStudentAppealController::class);
     });
 
 // ==================== FALLBACK ROUTE ==================== //

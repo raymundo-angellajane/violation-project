@@ -11,37 +11,42 @@ class StudentAppealController extends Controller
 {
     public function index()
     {
-        if (session('user_role') !== 'student') {
+        $userId = session('user_id');
+        $role   = session('user_role');
+
+        if (!$userId || $role !== 'student') {
             return redirect()->route('login')->withErrors([
                 'login' => 'You must be logged in as a student to view appeals.'
             ]);
         }
 
         $appeals = StudentAppeal::with(['violation', 'appeal'])
-            ->where('student_id', session('user_id'))
+            ->where('student_id', $userId)
             ->get();
 
-        $studentName = session('user_name');
-
-        return view('student.appeals.index', compact('appeals', 'studentName'));
+        return view('student.violations.index', compact('appeals'));
     }
 
     public function create()
     {
-        if (session('user_role') !== 'student') {
+        $userId = session('user_id');
+        $role   = session('user_role');
+
+        if (!$userId || $role !== 'student') {
             return redirect()->route('login')->withErrors([
                 'login' => 'You must be logged in as a student to submit an appeal.'
             ]);
         }
 
-        $studentName = session('user_name');
-
-        return view('student.appeals.create', compact('studentName'));
+        return view('student.appeals.create');
     }
 
     public function store(Request $request)
     {
-        if (session('user_role') !== 'student') {
+        $userId = session('user_id');
+        $role   = session('user_role');
+
+        if (!$userId || $role !== 'student') {
             return redirect()->route('login')->withErrors([
                 'login' => 'You must be logged in as a student to submit an appeal.'
             ]);
@@ -59,7 +64,7 @@ class StudentAppealController extends Controller
 
         StudentAppeal::create([
             'student_appeal_id' => uniqid('SAP-'),
-            'student_id'   => session('user_id'),
+            'student_id'   => $userId,
             'violation_id' => $request->violation_id,
             'appeal_id'    => $appeal->appeal_id,
             'status'       => 'Pending',

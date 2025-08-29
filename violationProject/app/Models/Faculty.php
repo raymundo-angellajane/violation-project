@@ -12,7 +12,7 @@ class Faculty extends Authenticatable
 
     protected $table = 'faculties';
     protected $primaryKey = 'faculty_id';
-    public $incrementing = false;
+    public $incrementing = false; 
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -28,9 +28,7 @@ class Faculty extends Authenticatable
         'remember_token',
     ];
 
-    /**
-     * Hash password unless it's already hashed.
-     */
+    // Automatically hash password
     public function setPasswordAttribute($value)
     {
         if (!empty($value)) {
@@ -56,5 +54,4 @@ class Faculty extends Authenticatable
     {
         return 'email';
     }
-
 }

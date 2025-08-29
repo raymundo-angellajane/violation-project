@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use App\Models\Student;
 
 class IntegrationController extends Controller
 {
@@ -51,23 +52,49 @@ class IntegrationController extends Controller
 
                 // Normalize role
                 $role = strtolower($user['role'] ?? '');
-                if ($role === 'students') {
-                    $role = 'student';
-                }
-                if ($role === 'faculties') {
-                    $role = 'faculty';
+                if ($role === 'students') $role = 'student';
+                if ($role === 'faculties') $role = 'faculty';
+
+                $student = null;
+
+                if ($role === 'student') {
+                    // Always ensure student_no exists
+                    $studentNo = $user['student_no'] ?? ('SN-' . strtoupper(uniqid()));
+
+                    $student = Student::firstOrCreate(
+                        ['email' => $user['email']],
+                        [
+                            'first_name' => $user['first_name'] ?? '',
+                            'last_name'  => $user['last_name'] ?? '',
+                            'student_no' => $studentNo,
+                            'course_id'  => $user['course_id'] ?? null,
+                            'year_level' => $user['year_level'] ?? null,
+                            'contact_no' => $user['contact_no'] ?? null,
+                        ]
+                    );
+
+                    // If existing record had no student_no, update it
+                    if (empty($student->student_no)) {
+                        $student->student_no = $studentNo;
+                        $student->save();
+                    }
                 }
 
                 // Save details to session
                 session([
-                    'user_id'    => $user['id'] ?? null,
-                    'user_email' => $user['email'] ?? null,
-                    'user_name'  => trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')),
-                    'user_role'  => $role,
-                    'api_token'  => $data['session_token'] ?? null,
+                    'user_id'     => $role === 'student' ? $student->student_id : ($user['id'] ?? null),
+                    'user_email'  => $user['email'] ?? null,
+                    'user_name'   => trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')),
+                    'user_role'   => $role,
+                    'api_token'   => $data['session_token'] ?? null,
+
+                    // Extra fields for students
+                    'student_no'   => $student->student_no ?? null,
+                    'course_id'    => $student->course_id ?? null,
+                    'year_level'   => $student->year_level ?? null,
                 ]);
 
-                // Redirect based on normalized role
+                // Redirect based on role
                 if ($role === 'faculty') {
                     return redirect()->route('faculty.violations.index')
                                      ->with('success', 'Welcome Faculty ' . ($user['first_name'] ?? '') . '!');
@@ -78,7 +105,6 @@ class IntegrationController extends Controller
                                      ->with('success', 'Welcome Student ' . ($user['first_name'] ?? '') . '!');
                 }
 
-                // If role is unrecognized
                 return redirect()->route('login')->withErrors([
                     'login' => 'Unknown role. Please contact administrator.',
                 ]);

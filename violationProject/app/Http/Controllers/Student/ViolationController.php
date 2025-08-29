@@ -17,7 +17,9 @@ class ViolationController extends Controller
         }
 
         $violations = Violation::with(['course', 'student', 'studentAppeals.appeal', 'facultyReviewer'])
-            ->where('student_id', session('user_id'))
+            ->whereHas('student', function($query) {
+                $query->where('student_id', session('user_id'));
+            })
             ->get();
 
         $studentName = session('user_name');

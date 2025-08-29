@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Faculty;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Controllers\IntegrationController;
 use App\Models\Violation;
 use App\Models\Student;
 use App\Models\Course;
@@ -15,7 +14,6 @@ class ViolationController extends Controller
     // Show all violations
     public function index()
     {
-        // join students and courses for cleaner display
         $violations = Violation::with(['studentAppeals.appeal', 'student', 'course'])->get();
         return view('violations.violation-entry', compact('violations'));
     }
@@ -32,49 +30,54 @@ class ViolationController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'student_no'     => 'required|string',
-            'first_name'     => 'required|string',
-            'last_name'      => 'required|string',
-            'course_id'      => 'required|exists:courses,course_id',
-            'year_level'     => 'required|string',
-            'type'           => 'required|string',
-            'violation_date' => 'required|date',
-            'details'        => 'nullable|string',
-            'penalty'        => 'required|string',
-            'status'         => 'required|string',
+            'student_id'      => 'nullable|exists:students,student_id',
+            'student_no'      => 'nullable|string|max:50',
+            'first_name'      => 'nullable|string|max:100',
+            'last_name'       => 'nullable|string|max:100',
+            'course_id'       => 'required|exists:courses,course_id',
+            'year_level'      => 'nullable|string|max:20',
+            'type'            => 'required|in:Minor,Major',
+            'violation_date'  => 'required|date',
+            'details'         => 'nullable|string',
+            'penalty'         => 'required|string|max:255',
+            'status'          => 'nullable|in:Pending,Disclosed',
         ]);
 
-        //  Create or find student
-        $student = Student::firstOrCreate(
-            ['student_no' => $validated['student_no']],
-            [
-                'first_name' => $validated['first_name'],
-                'last_name'  => $validated['last_name'],
-                'course_id'  => $validated['course_id'],
-                'year_level' => $validated['year_level'],
-                'email'      => strtolower($validated['student_no']).'@school.test',
-                'contact_no' => 'N/A',
-            ]
-        );
+        // Case 1: Select existing student
+        if ($validated['student_id']) {
+            $student = Student::findOrFail($validated['student_id']);
+        } 
+        // Case 2: Manual entry (create or update student)
+        else {
+            $student = Student::firstOrCreate(
+                ['student_no' => $validated['student_no']],
+                [
+                    'first_name' => $validated['first_name'],
+                    'last_name'  => $validated['last_name'],
+                    'course_id'  => $validated['course_id'],
+                    'year_level' => $validated['year_level'],
+                ]
+            );
+        }
 
-        //  Create violation
+        // Create violation
         Violation::create([
             'student_id'     => $student->student_id,
             'course_id'      => $validated['course_id'],
-            'year_level'     => $validated['year_level'],
+            'year_level'     => $student->year_level ?? $validated['year_level'] ?? 'N/A',
             'type'           => $validated['type'],
-            'details'        => $validated['details'],
             'violation_date' => $validated['violation_date'],
+            'details'        => $validated['details'] ?? null,
             'penalty'        => $validated['penalty'],
-            'status'         => $validated['status'],
-            'reviewed_by'    => null,
+            'status'         => $validated['status'] ?? 'Pending',
         ]);
 
-        return redirect()->route('faculty.violations.index')->with('success', 'Violation added successfully!');
-
+        return redirect()
+            ->route('faculty.violations.index')
+            ->with('success', 'Violation added successfully.');
     }
 
-    // Show edit form
+    // Edit form
     public function edit($id)
     {
         $violation = Violation::with(['student', 'course'])->findOrFail($id);
@@ -87,62 +90,69 @@ class ViolationController extends Controller
     {
         $violation = Violation::findOrFail($id);
 
-        // para ma prevent ung changes to status kung cleared na siya
-        if ($violation->status === 'Cleared') {
-            return redirect()->route('faculty.violations.index')
-                            ->with('error', 'This violation is locked because the appeal was approved.');
+        $validated = $request->validate([
+            'student_id'      => 'nullable|exists:students,student_id',
+            'student_no'      => 'nullable|string|max:50',
+            'first_name'      => 'nullable|string|max:100',
+            'last_name'       => 'nullable|string|max:100',
+            'course_id'       => 'required|exists:courses,course_id',
+            'year_level'      => 'nullable|string|max:20',
+            'type'            => 'required|in:Minor,Major',
+            'violation_date'  => 'required|date',
+            'details'         => 'nullable|string',
+            'penalty'         => 'required|string|max:255',
+            'status'          => 'nullable|in:Pending,Disclosed',
+        ]);
+
+        // Case 1: Existing student
+        if ($validated['student_id']) {
+            $student = Student::findOrFail($validated['student_id']);
+        } 
+        // Case 2: Manual entry
+        else {
+            $student = Student::firstOrCreate(
+                ['student_no' => $validated['student_no']],
+                [
+                    'first_name' => $validated['first_name'],
+                    'last_name'  => $validated['last_name'],
+                    'course_id'  => $validated['course_id'],
+                    'year_level' => $validated['year_level'],
+                ]
+            );
         }
 
-        $validated = $request->validate([
-            'student_no'     => 'required|string',
-            'first_name'     => 'required|string',
-            'last_name'      => 'required|string',
-            'course_id'      => 'required|exists:courses,course_id',
-            'year_level'     => 'required|string',
-            'type'           => 'required|string',
-            'violation_date' => 'required|date',
-            'details'        => 'nullable|string',
-            'penalty'        => 'required|string',
-            'status'         => 'required|string',
-        ]);
-
-        $student = $violation->student;
-
-        $student->update([
-            'student_no' => $validated['student_no'],
-            'first_name' => $validated['first_name'],
-            'last_name'  => $validated['last_name'],
-            'course_id'  => $validated['course_id'],
-            'year_level' => $validated['year_level'],
-        ]);
-
+        // Update violation
         $violation->update([
+            'student_id'     => $student->student_id,
             'course_id'      => $validated['course_id'],
-            'year_level'     => $validated['year_level'],
+            'year_level'     => $student->year_level ?? $validated['year_level'] ?? 'N/A',
             'type'           => $validated['type'],
-            'details'        => $validated['details'],
             'violation_date' => $validated['violation_date'],
+            'details'        => $validated['details'] ?? null,
             'penalty'        => $validated['penalty'],
-            'status'         => $validated['status'],
+            'status'         => $validated['status'] ?? 'Pending',
         ]);
 
-        return redirect()->route('faculty.violations.index')
-                        ->with('success', 'Violation updated successfully!');
+        return redirect()
+            ->route('faculty.violations.index')
+            ->with('success', 'Violation updated successfully.');
     }
 
-    // Delete violation
+
+    // Delete
     public function destroy($id)
     {
         Violation::findOrFail($id)->delete();
         return redirect()->route('faculty.violations.index')->with('success', 'Violation deleted successfully!');
     }
 
+    // Export PDF
     public function exportPdf()
     {
-        $violations = \App\Models\Violation::with(['student', 'course'])->get();
+        $violations = Violation::with(['student', 'course'])->get();
 
         $pdf = Pdf::loadView('violations.pdf', compact('violations'))
-                ->setPaper('a4', 'landscape');
+                  ->setPaper('a4', 'landscape');
 
         return $pdf->download('violations_report.pdf');
     }

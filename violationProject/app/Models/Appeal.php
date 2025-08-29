@@ -11,12 +11,13 @@ class Appeal extends Model
 
     protected $table = 'appeals';
     protected $primaryKey = 'appeal_id';
-    public $incrementing = false; // since it's string-based
+    public $incrementing = false; 
     protected $keyType = 'string';
 
     protected $fillable = [
         'appeal_id',
         'appeal_text',
+        'status',       
         'reviewed_at',
     ];
 
@@ -26,3 +27,4 @@ class Appeal extends Model
         return $this->hasMany(StudentAppeal::class, 'appeal_id', 'appeal_id');
     }
 }
+
