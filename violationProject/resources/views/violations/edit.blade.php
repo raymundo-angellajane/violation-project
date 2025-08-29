@@ -77,9 +77,16 @@
 
         <div>
           <label class="block text-sm font-semibold text-[#7A0000] mb-1">Year Level</label>
-          <input type="text" name="year_level" id="year_level" 
-                 value="{{ old('year_level', $violation->student->year_level) }}" 
-                 class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000]">
+          <select name="year_level" id="year_level"
+                  class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000]">
+            <option value="">-- Select Year Level --</option>
+            @foreach(['1st Year', '2nd Year', '3rd Year', '4th Year'] as $level)
+              <option value="{{ $level }}"
+                      {{ old('year_level', $violation->student->year_level) == $level ? 'selected' : '' }}>
+                {{ $level }}
+              </option>
+            @endforeach
+          </select>
         </div>
 
         {{-- Violation Info --}}
