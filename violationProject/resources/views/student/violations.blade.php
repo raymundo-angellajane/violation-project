@@ -11,7 +11,7 @@
     tailwind.config = {
       theme: {
         extend: {
-          colors: { brand: { 700: '#7A0000' } },
+          colors: { brand: { 700: '#7A0000', 800: '#600000' } },
           borderRadius: { '2xl': '1rem' }
         }
       }
@@ -23,7 +23,7 @@
 
     <!-- Top Bar -->
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-3xl font-bold tracking-tight">My Violations</h1>
+      <h1 class="text-3xl font-bold tracking-tight text-brand-700">My Violations</h1>
       <form action="{{ route('logout') }}" method="POST">
         @csrf
         <button type="submit" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 shadow">
@@ -53,6 +53,7 @@
     <!-- Violations Table -->
     <div class="overflow-x-auto rounded-2xl bg-white shadow border border-neutral-200">
       <div class="min-w-[1100px]">
+        <!-- Table Head -->
         <div class="bg-brand-700 text-white">
           <div class="grid grid-cols-9 divide-x divide-neutral-300/30 px-6 py-3 text-sm font-semibold">
             <div class="text-center">Violation ID</div>
@@ -67,8 +68,8 @@
           </div>
         </div>
 
+        <!-- Table Rows -->
         <div class="divide-y divide-neutral-200" id="violationsTable">
-          <!-- Local violations -->
           @forelse($violations as $row)
             <div class="grid grid-cols-9 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 odd:bg-neutral-50/40 transition text-sm items-center">
               <div class="text-center">{{ $row->formatted_id }}</div>
@@ -80,9 +81,13 @@
               <!-- Appeal -->
               <div class="text-center">
                 @if(!$row->studentAppeals->count())
-                  <button onclick="openAppealModal('{{ $row->violation_id }}')" class="text-blue-600 hover:text-blue-800 font-medium">Submit Appeal</button>
+                  <button onclick="openAppealModal('{{ $row->violation_id }}')" class="text-blue-600 hover:text-blue-800 font-medium">
+                    Submit Appeal
+                  </button>
                 @else
-                  <button onclick="openViewAppealModal(`{{ optional(optional($row->studentAppeals->first())->appeal)->appeal_text ?? '' }}`)" class="text-blue-600 hover:text-blue-800 font-medium">View Appeal</button>
+                  <button onclick="openViewAppealModal(`{{ optional(optional($row->studentAppeals->first())->appeal)->appeal_text ?? '' }}`)" class="text-blue-600 hover:text-blue-800 font-medium">
+                    View Appeal
+                  </button>
                 @endif
               </div>
 
@@ -98,20 +103,34 @@
                 @else - @endif
               </div>
 
-              <div class="text-center">{{ optional($row->studentAppeals->first())->reviewed_by ?? '-' }}</div>
+              <!-- Reviewed By -->
+              <div class="text-center">
+                @if($row->studentAppeals->first() && $row->studentAppeals->first()->facultyReviewer)
+                  Prof. {{ $row->studentAppeals->first()->facultyReviewer->first_name }} {{ $row->studentAppeals->first()->facultyReviewer->last_name }}
+                @else
+                  -
+                @endif
+              </div>
 
+              <!-- Actions (Eye Icon) -->
               <div class="flex items-center justify-center">
+                @php
+                  $reviewedByName = '-';
+                  if ($row->studentAppeals->first() && $row->studentAppeals->first()->facultyReviewer) {
+                    $reviewedByName = 'Prof. ' . $row->studentAppeals->first()->facultyReviewer->first_name . ' ' . $row->studentAppeals->first()->facultyReviewer->last_name;
+                  }
+                @endphp
                 <button onclick="openDetailsModal(
-                  '{{ $row->formatted_id }}',
-                  '{{ $row->type }}',
-                  '{{ $row->details ?? 'N/A' }}',
-                  '{{ \Carbon\Carbon::parse($row->violation_date)->format('M d, Y') }}',
-                  '{{ $row->penalty }}',
-                  '{{ $row->studentAppeals->count() ? optional(optional($row->studentAppeals->first())->appeal)->appeal_text : 'No appeal submitted' }}',
-                  '{{ $row->studentAppeals->count() ? ucfirst($row->studentAppeals->first()->status) : '-' }}',
-                  '{{ optional($row->studentAppeals->first())->reviewed_by ?? '-' }}'
-                )" class="text-brand-700 hover:text-brand-900">
-                  <i data-lucide="eye"></i>
+                  @js($row->formatted_id),
+                  @js($row->type),
+                  @js($row->details ?? 'N/A'),
+                  @js(\Carbon\Carbon::parse($row->violation_date)->format('M d, Y')),
+                  @js($row->penalty),
+                  @js($row->studentAppeals->count() ? optional(optional($row->studentAppeals->first())->appeal)->appeal_text : 'No appeal submitted'),
+                  @js($row->studentAppeals->count() ? ucfirst($row->studentAppeals->first()->status) : '-'),
+                  @js($reviewedByName)
+                )" class="p-2 rounded-lg hover:bg-neutral-100 text-brand-700 hover:text-brand-900 transition">
+                  <i data-lucide="eye" class="w-5 h-5"></i>
                 </button>
               </div>
             </div>
@@ -121,7 +140,6 @@
               <p class="font-medium">No violations found</p>
             </div>
           @endforelse
-          <!-- External API violations appended by JS -->
         </div>
       </div>
     </div>
@@ -170,8 +188,12 @@
     </div>
   </div>
 
+  <!-- Scripts -->
   <script>
-    function openAppealModal(violationId) { document.getElementById('appealViolationId').value = violationId; document.getElementById('appealModal').classList.remove('hidden'); }
+    function openAppealModal(violationId) { 
+      document.getElementById('appealViolationId').value = violationId; 
+      document.getElementById('appealModal').classList.remove('hidden'); 
+    }
     function closeAppealModal() { document.getElementById('appealModal').classList.add('hidden'); }
 
     function openDetailsModal(id, type, details, date, penalty, appeal, status, reviewedBy) {
@@ -187,42 +209,21 @@
     }
     function closeDetailsModal() { document.getElementById('detailsModal').classList.add('hidden'); }
 
-    function openViewAppealModal(text) { document.getElementById('viewAppealText').textContent = text; document.getElementById('viewAppealModal').classList.remove('hidden'); }
+    function openViewAppealModal(text) { 
+      document.getElementById('viewAppealText').textContent = text; 
+      document.getElementById('viewAppealModal').classList.remove('hidden'); 
+    }
     function closeViewAppealModal() { document.getElementById('viewAppealModal').classList.add('hidden'); }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const userId = '{{ session("user_id") }}';
-
-      // Fetch external API violations
-      fetch(`https://faculty-api.example.com/student-violations/${userId}`)
-        .then(res => res.json())
-        .then(apiViolations => {
-          const table = document.getElementById('violationsTable');
-          apiViolations.forEach(v => {
-            const row = document.createElement('div');
-            row.className = 'grid grid-cols-9 divide-x divide-neutral-200 px-6 py-3 hover:bg-neutral-50 odd:bg-neutral-50/40 text-sm items-center';
-            row.innerHTML = `
-              <div class="text-center">${v.formatted_id}</div>
-              <div class="text-center">${v.type}</div>
-              <div class="text-center">${v.details ?? 'N/A'}</div>
-              <div class="text-center">${v.violation_date}</div>
-              <div class="text-center">${v.penalty}</div>
-              <div class="text-center">-</div>
-              <div class="text-center">-</div>
-              <div class="text-center">${v.reviewed_by ?? '-'}</div>
-              <div class="flex items-center justify-center">
-                <button onclick="openDetailsModal('${v.formatted_id}', '${v.type}', '${v.details ?? 'N/A'}', '${v.violation_date}', '${v.penalty}', '-', '-', '${v.reviewed_by ?? '-'}')" class="text-brand-700 hover:text-brand-900">
-                  <i data-lucide="eye"></i>
-                </button>
-              </div>`;
-            table.appendChild(row);
-          });
-          lucide.createIcons();
-        });
+      lucide.createIcons(); // ✅ render icons
 
       // Flash message auto-hide
       const msg = document.getElementById("successMessage");
-      if (msg) setTimeout(() => { msg.classList.add("opacity-0","transition","duration-700"); setTimeout(() => msg.remove(), 700); }, 3000);
+      if (msg) setTimeout(() => { 
+        msg.classList.add("opacity-0","transition","duration-700"); 
+        setTimeout(() => msg.remove(), 700); 
+      }, 3000);
     });
   </script>
 </body>
