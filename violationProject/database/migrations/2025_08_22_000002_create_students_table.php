@@ -14,8 +14,7 @@ return new class extends Migration {
             $table->string('last_name');
             $table->unsignedBigInteger('course_id')->nullable();
             $table->foreign('course_id')->references('course_id')->on('courses')->cascadeOnDelete();
-            $table->unsignedBigInteger('year_level_id')->nullable();
-            $table->foreign('year_level_id')->references('year_level_id')->on('year_levels')->cascadeOnDelete();
+            $table->string('year_level')->nullable();
             $table->string('email')->unique();
             $table->string('contact_no')->nullable();
             $table->string('password')->nullable();

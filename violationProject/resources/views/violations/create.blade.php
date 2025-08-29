@@ -75,7 +75,6 @@
         </div>
 
         <div>
-<<<<<<< HEAD
           <label class="block text-sm font-semibold text-[#7A0000] mb-1">Year Level</label>
           <select name="year_level" id="year_level" required
                   class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000]">
@@ -87,22 +86,6 @@
             @endforeach
           </select>
           @error('year_level') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-=======
-            <label class="block text-sm font-semibold text-[#7A0000] mb-1">Year Level</label>
-            <select name="year_level_id" id="year_level_id"
-                class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000]">
-                <option value="">-- Select Year Level --</option>
-                @foreach($year_levels as $year_level)
-                    <option value="{{ $year_level->year_level_id }}" 
-                        {{ old('year_level_id') == $year_level->year_level_id ? 'selected' : '' }}>
-                        {{ $year_level->year_name }}
-                    </option>
-                @endforeach
-            </select>
-            @error('year_level_id') 
-                <p class="text-red-600 text-sm mt-1">{{ $message }}</p> 
-            @enderror
->>>>>>> e688828a13112e15812f635ecaa9dd19ba0a609d
         </div>
 
         {{-- Violation Info --}}
