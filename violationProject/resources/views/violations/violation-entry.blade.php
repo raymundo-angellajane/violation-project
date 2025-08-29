@@ -118,7 +118,7 @@
               <div class="text-center">{{ \Carbon\Carbon::parse($row->violation_date)->format('M d, Y') }}</div>
               <div class="text-center">{{ $row->penalty }}</div>
 
-              {{-- Appeal column -> opens Appeal Modal --}}
+              {{-- Appeal column --}}
               <div class="text-center">
                 @if($row->studentAppeals->isNotEmpty())
                   @php $appeal = $row->studentAppeals->first(); @endphp
@@ -190,22 +190,7 @@
     </div>
   </div>
 
-  {{-- Violation Details Modal (read-only) --}}
-  <div id="details-modal" class="fixed inset-0 hidden bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-lg max-w-2xl w-full p-6">
-      <h3 class="text-lg font-semibold mb-4">Violation Details</h3>
-      <div id="details-content" class="space-y-3 text-sm text-neutral-700"></div>
-
-      <div class="mt-6 flex justify-end gap-2">
-        <button onclick="closeDetailsModal()"
-          class="px-4 py-2 rounded-lg bg-brand-700 text-white hover:bg-brand-700/90 transition">
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-
-  {{-- Appeal Modal (Approve/Reject only when pending) --}}
+  {{-- Appeal Modal --}}
   <div id="appeal-modal" class="fixed inset-0 hidden bg-black/50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-lg max-w-2xl w-full p-6">
       <h3 class="text-lg font-semibold mb-4">Appeal Details</h3>
@@ -323,9 +308,6 @@
     // === Violation Details Modal ===
     function openDetailsModalFromBtn(btn) {
       const v = JSON.parse(btn.dataset.details);
-      openDetailsModal(v);
-    }
-    function openDetailsModal(v) {
       const content = document.getElementById('details-content');
       content.innerHTML = `
         <p><strong>Student No:</strong> ${escapeHtml(v.student_no)}</p>
@@ -347,7 +329,7 @@
     // === Appeal Modal ===
     function openAppealModal(btn) {
       const v = {
-        appeal_id: btn.dataset.appealid,
+        appeal_id: btn.dataset.appealId,
         appeal: btn.dataset.appeal,
         appeal_status: btn.dataset.appealStatus,
       };
@@ -359,25 +341,23 @@
 
       const hasAppeal = v.appeal && v.appeal !== 'N/A';
 
-      // Only show Appeal info
+      // Show Appeal info
       content.innerHTML = `
-        <p><strong>Appeal ID:</strong> ${escapeHtml(v.appealid)}</p>
-
+        <p><strong>Appeal ID:</strong> ${escapeHtml(v.appeal_id)}</p>
         <div class="mt-3">
           <p class="mb-1"><strong>Appeal Message:</strong></p>
           <div class="whitespace-pre-wrap bg-neutral-50 border border-neutral-200 rounded-lg p-3">
             ${hasAppeal ? escapeHtml(v.appeal) : 'N/A'}
           </div>
         </div>
-
         <p class="mt-3"><strong>Status:</strong> ${statusPill(v.appeal_status || 'N/A')}</p>
       `;
 
-      // Show Approve/Reject only if Pending
+      // Actions only if Pending
       if (hasAppeal && (v.appeal_status || '').toLowerCase() === 'pending') {
         actions.classList.remove('hidden');
-        approveForm.action = `/faculty/appeals/${v.appealid}`;
-        rejectForm.action  = `/faculty/appeals/${v.appealid}`;
+        approveForm.action = "{{ url('faculty/appeals') }}/" + v.appeal_id;
+        rejectForm.action  = "{{ url('faculty/appeals') }}/" + v.appeal_id;
       } else {
         actions.classList.add('hidden');
         approveForm.removeAttribute('action');
@@ -386,31 +366,31 @@
 
       document.getElementById('appeal-modal').classList.remove('hidden');
     }
-
-
     function closeAppealModal() {
       document.getElementById('appeal-modal').classList.add('hidden');
     }
 
-    // Close modals on ESC
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeDetailsModal();
-        closeAppealModal();
-      }
-    });
+    // Auto-hide flash
+    setTimeout(() => {
+      const msg = document.getElementById('successMessage');
+      if (msg) msg.style.display = 'none';
+    }, 4000);
 
-    // Flash Message Auto-hide + icons
-    document.addEventListener("DOMContentLoaded", () => {
-      const msg = document.getElementById("successMessage");
-      if (msg) {
-        setTimeout(() => {
-          msg.classList.add("opacity-0", "transition", "duration-700");
-          setTimeout(() => msg.remove(), 700);
-        }, 3000);
-      }
-      lucide.createIcons();
-    });
+    // Init icons
+    lucide.createIcons();
   </script>
+
+  {{-- Violation Details Modal --}}
+  <div id="details-modal" class="fixed inset-0 hidden bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg max-w-lg w-full p-6">
+      <h3 class="text-lg font-semibold mb-4">Violation Details</h3>
+      <div id="details-content" class="space-y-2 text-sm text-neutral-700"></div>
+      <div class="mt-6 flex justify-end">
+        <button onclick="closeDetailsModal()" class="px-4 py-2 rounded-lg bg-brand-700 text-white hover:bg-brand-700/90 transition">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

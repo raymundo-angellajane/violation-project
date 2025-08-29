@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="p-6 max-w-2xl mx-auto">
-    <h2 class="text-2xl font-bold mb-6">Review Appeal #{{ $appeal->id }}</h2>
+    <h2 class="text-2xl font-bold mb-6">Review Appeal #{{ $appeal->appeal_id }}</h2>
 
     <div class="bg-white shadow rounded-lg p-4 mb-6">
         <p><strong>Student:</strong> 
@@ -14,7 +14,7 @@
         </p>
     </div>
 
-    <form action="{{ route('faculty.appeals.update', $appeal->id) }}" method="POST" class="flex gap-3">
+    <form action="{{ route('faculty.appeals.update', $appeal->appeal_id) }}" method="POST" class="flex gap-3">
         @csrf
         @method('PUT')
 

@@ -14,7 +14,7 @@
         <table class="min-w-full border border-gray-200">
             <thead class="bg-gray-100">
                 <tr>
-                    <th class="py-2 px-4 border-b">Appeal ID</th>
+                    <th class="py-2 px-4 border-b">Appeal IDs</th>
                     <th class="py-2 px-4 border-b">Student</th>
                     <th class="py-2 px-4 border-b">Status</th>
                     <th class="py-2 px-4 border-b text-right">Action</th>
@@ -23,7 +23,7 @@
             <tbody>
                 @forelse ($appeals as $appeal)
                 <tr>
-                    <td class="py-2 px-4 border-b">{{ $appeal->id }}</td>
+                    <td class="py-2 px-4 border-b">{{ $appeal->appeal_id }}</td>
                     <td class="py-2 px-4 border-b">
                         {{ optional($appeal->studentAppeals->first()->student)->name ?? 'N/A' }}
                     </td>
@@ -31,7 +31,7 @@
                         {{ $appeal->studentAppeals->first()->status ?? 'Pending' }}
                     </td>
                     <td class="py-2 px-4 border-b text-right">
-                        <a href="{{ route('faculty.appeals.review', $appeal->id) }}" 
+                        <a href="{{ route('faculty.appeals.review', $appeal->appeal_id ) }}" 
                            class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
                             Review
                         </a>
