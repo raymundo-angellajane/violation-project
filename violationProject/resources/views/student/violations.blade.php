@@ -44,7 +44,9 @@
           {{ optional($student)->first_name }} {{ optional($student)->last_name }}
         </p>
         <p class="text-sm text-neutral-500">Course</p>
-        <p class="font-semibold">{{ optional($student->course)->course_name ?? 'N/A' }}</p>
+        <p class="font-semibold">
+          {{ optional(optional($student)->course)->course_name ?? 'N/A' }}
+        </p>
       </div>
     </div>
 

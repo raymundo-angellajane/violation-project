@@ -5,23 +5,24 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\StudentAppeal;
 use App\Models\Appeal;
+use App\Models\Student;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class StudentAppealController extends Controller
 {
     public function index()
     {
-        $student = Auth::guard('student')->user();
-
-        if (!$student) {
+        if (session('user_role') !== 'student') {
             return redirect()->route('login')->withErrors([
                 'login' => 'You must be logged in as a student to view appeals.'
             ]);
         }
 
+        $studentId = session('user_id');
+        $student = Student::find($studentId);
+
         $appeals = StudentAppeal::with(['violation', 'appeal'])
-            ->where('student_id', $student->student_id)
+            ->where('student_id', $studentId)
             ->get();
 
         return view('student.appeals.index', compact('appeals', 'student'));
@@ -29,26 +30,27 @@ class StudentAppealController extends Controller
 
     public function create()
     {
-        $student = Auth::guard('student')->user();
-
-        if (!$student) {
+        if (session('user_role') !== 'student') {
             return redirect()->route('login')->withErrors([
                 'login' => 'You must be logged in as a student to submit an appeal.'
             ]);
         }
+
+        $studentId = session('user_id');
+        $student = Student::find($studentId);
 
         return view('student.appeals.create', compact('student'));
     }
 
     public function store(Request $request)
     {
-        $student = Auth::guard('student')->user();
-
-        if (!$student) {
+        if (session('user_role') !== 'student') {
             return redirect()->route('login')->withErrors([
                 'login' => 'You must be logged in as a student to submit an appeal.'
             ]);
         }
+
+        $studentId = session('user_id');
 
         $request->validate([
             'violation_id' => 'required|exists:violations,violation_id',
@@ -62,7 +64,7 @@ class StudentAppealController extends Controller
 
         StudentAppeal::create([
             'student_appeal_id' => uniqid('SAP-'),
-            'student_id'   => $student->student_id,
+            'student_id'   => $studentId,
             'violation_id' => $request->violation_id,
             'appeal_id'    => $appeal->appeal_id,
             'status'       => 'Pending',

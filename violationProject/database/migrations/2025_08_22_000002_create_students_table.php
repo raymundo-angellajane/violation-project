@@ -12,7 +12,8 @@ return new class extends Migration {
             $table->string('first_name');
             $table->string('last_name');
             $table->unsignedBigInteger('course_id'); 
-            $table->string('year_level', 20);
+            $table->enum('year_level', ['1st Year', '2nd Year', '3rd Year', '4th Year']);
+
             $table->string('email')->unique();
             $table->string('contact_no', 20);
             $table->string('password'); 

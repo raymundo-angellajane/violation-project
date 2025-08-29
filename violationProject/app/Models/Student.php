@@ -38,6 +38,16 @@ class Student extends Authenticatable
     ];
 
     /**
+     * Year levels enum
+     */
+    public const YEAR_LEVELS = [
+        '1st Year',
+        '2nd Year',
+        '3rd Year',
+        '4th Year',
+    ];
+
+    /**
      * Only hash password if provided (optional).
      */
     public function setPasswordAttribute($value)
