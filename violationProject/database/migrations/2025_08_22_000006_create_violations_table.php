@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('course_id');
             $table->foreign('course_id')->references('course_id')->on('courses')->cascadeOnDelete();
 
-            //$table->string('year_level');
+            $table->string('year_level');
             $table->string('type');
             $table->text('details')->nullable();
             $table->date('violation_date');

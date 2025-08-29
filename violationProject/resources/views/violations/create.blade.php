@@ -150,7 +150,7 @@
       document.getElementById('first_name').value  = option.getAttribute('data-first-name') || '';
       document.getElementById('last_name').value   = option.getAttribute('data-last-name') || '';
       document.getElementById('course_id').value   = option.getAttribute('data-course') || '';
-      document.getElementById('year_level_id').value  = option.getAttribute('data-year-level') || '';
+      document.getElementById('year_level').value  = option.getAttribute('data-year-level') || '';
     });
   </script>
 
