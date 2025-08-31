@@ -100,7 +100,7 @@
 
         <div>
           <label class="block text-sm font-semibold text-[#7A0000] mb-1">Date</label>
-          <input type="date" name="violation_date" value="{{ old('violation_date') }}"
+          <input type="date" name="violation_date" value="{{ old('violation_date', \Carbon\Carbon::today()->format('Y-m-d')) }}"
                  class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#7A0000]" required>
           @error('violation_date') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>

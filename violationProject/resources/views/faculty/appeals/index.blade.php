@@ -67,7 +67,7 @@
                             <td class="px-6 py-4 text-right">
                                 <a href="{{ route('faculty.appeals.review', $appeal->appeal_id) }}" 
                                    class="inline-block px-4 py-2 bg-[#7A0000] text-white rounded-lg shadow hover:bg-red-800 transition">
-                                    Review
+                                    View
                                 </a>
                             </td>
                         </tr>
